@@ -131,6 +131,6 @@
     private async Task Download()
     {
         var file = await new BattleCardLoader().Save(battleCard, imageBytes);
-        await fileDownload.DownloadFileFromStream(file.fileName, new MemoryStream(file.Bytes));
+        await fileDownload.DownloadFileFromStream(file.FileName, new MemoryStream(file.Bytes));
     }
 }

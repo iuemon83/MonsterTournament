@@ -71,6 +71,6 @@
     private async Task Download()
     {
         var file = await new SpecialAttackLoader().Save(specialAttack);
-        await fileDownload.DownloadFileFromStream(file.fileName, new MemoryStream(file.Bytes));
+        await fileDownload.DownloadFileFromStream(file.FileName, new MemoryStream(file.Bytes));
     }
 }

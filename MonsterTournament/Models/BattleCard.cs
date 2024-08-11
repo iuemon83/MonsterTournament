@@ -73,7 +73,7 @@ namespace MonsterTournament.Client.Models
         public BattleCardAttack[] Attacks { get; set; } = [];
     }
 
-    public record MonsterTounamentFile(string fileName, byte[] Bytes);
+    public record MonsterTounamentFile(string FileName, byte[] Bytes);
 
     public class BattleCardLoader
     {
@@ -93,7 +93,7 @@ namespace MonsterTournament.Client.Models
                     await JsonSerializer.SerializeAsync(cardStream, model);
                 }
 
-                if (imageBytes.Any())
+                if (imageBytes.Length != 0)
                 {
                     var entry = zip.CreateEntry(model.ImageFileName);
                     using var stream = entry.Open();
