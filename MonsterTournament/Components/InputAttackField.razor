@@ -13,7 +13,10 @@
                            @bind-Value=battleCardAttack.Type>
                     @foreach (var t in Enum.GetValues<BattleCardAttackType>())
                     {
-                        <MudSelectItem Value="@t">@t.ToDisplayString()</MudSelectItem>
+                        <MudSelectItem Value="@t">
+                            <AttackIcon AttackType="@t" />
+                            @t.ToDisplayString()
+                        </MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>

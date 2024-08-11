@@ -96,46 +96,48 @@
 
         @foreach (var attack in this.card.Attacks)
         {
-            <MudPaper Outlined="true" Class="@((attack.IsSelected ? "mud-primary" : "")+" pa-2 mb-2")">
-                <MudContainer>
-                    <MudGrid Justify="Justify.FlexStart">
-                        @if (this.card.SpecialAttackAttached)
+            <MudPaper Outlined="true" Class="@($"{(attack.IsSelected ? "mud-primary" : "")} pa-2 mb-2")">
+                <MudGrid Justify="Justify.FlexStart">
+                    <MudItem sm="1">
+                        <AttackIcon AttackType="@attack.Type" />
+                    </MudItem>
+
+                    @if (this.card.SpecialAttackAttached)
+                    {
+                        <MudItem sm="4">
+                            <MudText Class="overflow-hidden" Typo="Typo.body1">@attack.SpecialName</MudText>
+                        </MudItem>
+                        <MudItem sm="4">
+                            <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.SpecialAttackDescription</MudText>
+                        </MudItem>
+                    }
+                    else
+                    {
+                        @if (attack.Def.Type == BattleCardAttackType.Transform
+                       || attack.Def.Type == BattleCardAttackType.Special)
                         {
-                            <MudItem sm="5">
-                                <MudText Class="overflow-hidden" Typo="Typo.body1">@attack.SpecialName</MudText>
-                            </MudItem>
-                            <MudItem sm="4">
-                                <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.SpecialAttackDescription</MudText>
+                            <MudItem sm="8">
+                                <MudText Class="overflow-hidden" Align="Align.Center" Typo="Typo.body1">@attack.Description</MudText>
                             </MudItem>
                         }
                         else
                         {
-                            @if (attack.Def.Type == BattleCardAttackType.Transform
-                           || attack.Def.Type == BattleCardAttackType.Special)
-                            {
-                                <MudItem sm="9">
-                                    <MudText Class="overflow-hidden" Align="Align.Center" Typo="Typo.body1">@attack.Description</MudText>
-                                </MudItem>
-                            }
-                            else
-                            {
-                                <MudItem sm="5">
-                                    <MudText Class="overflow-hidden" Typo="Typo.body1">@attack.Name</MudText>
-                                </MudItem>
-                                <MudItem sm="4">
-                                    <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.Description</MudText>
-                                </MudItem>
-                            }
-
-                            <MudItem sm="3">
-                                <div class="d-flex gap-2">
-                                    <MudDivider Vertical="true" FlexItem="true" />
-                                    <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.StatusDescription</MudText>
-                                </div>
+                            <MudItem sm="4">
+                                <MudText Class="overflow-hidden" Typo="Typo.body1">@attack.Name</MudText>
+                            </MudItem>
+                            <MudItem sm="4">
+                                <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.Description</MudText>
                             </MudItem>
                         }
-                    </MudGrid>
-                </MudContainer>
+
+                        <MudItem sm="3">
+                            <div class="d-flex gap-2">
+                                <MudDivider Vertical="true" FlexItem="true" />
+                                <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.StatusDescription</MudText>
+                            </div>
+                        </MudItem>
+                    }
+                </MudGrid>
             </MudPaper>
         }
     </MudContainer>
@@ -277,6 +279,8 @@
         }
 
         public string Name => Def.Name;
+        public BattleCardAttackType Type => this.Special == null ? Def.Type : this.Special.Type;
+
         public string Description => BuildDescription(this.Def, this.DiffValue);
         public string StatusDescription => this.StatusDef == null ? "" : BuildDescription(this.StatusDef, 0);
         public string SpecialName => Special?.Name ?? "";
