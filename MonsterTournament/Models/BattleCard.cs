@@ -73,32 +73,35 @@ namespace MonsterTournament.Client.Models
         public BattleCardAttack[] Attacks { get; set; } = [];
     }
 
+    public record MonsterTounamentFile(string fileName, byte[] Bytes);
+
     public class BattleCardLoader
     {
-        public static readonly string jsonFileName = "card.json";
+        public static readonly string FileExtension = ".mtbc";
+        public static readonly string JsonFileName = "card.json";
 
-        public async Task<byte[]> Save(BattleCard battleCard, byte[] imageBytes)
+        public async Task<MonsterTounamentFile> Save(BattleCard model, byte[] imageBytes)
         {
             var fileStream = new MemoryStream();
 
             // disposeしないとzipファイルに書き込まれない
             using (var zip = new ZipArchive(fileStream, ZipArchiveMode.Create))
             {
-                var cardEntry = zip.CreateEntry(jsonFileName);
+                var cardEntry = zip.CreateEntry(JsonFileName);
                 using (var cardStream = cardEntry.Open())
                 {
-                    await JsonSerializer.SerializeAsync(cardStream, battleCard);
+                    await JsonSerializer.SerializeAsync(cardStream, model);
                 }
 
                 if (imageBytes.Any())
                 {
-                    var entry = zip.CreateEntry(battleCard.ImageFileName);
+                    var entry = zip.CreateEntry(model.ImageFileName);
                     using var stream = entry.Open();
                     await stream.WriteAsync(imageBytes);
                 }
             }
 
-            return fileStream.ToArray();
+            return new($"{model.Name}{FileExtension}", fileStream.ToArray());
         }
 
         public async Task<(BattleCard?, byte[] image)> Load(byte[] bytes)
@@ -110,7 +113,7 @@ namespace MonsterTournament.Client.Models
             {
                 Console.WriteLine(entry.Name);
 
-                if (entry.Name == jsonFileName)
+                if (entry.Name == JsonFileName)
                 {
                     using var stream = entry.Open();
                     using var ms = new MemoryStream();
@@ -150,23 +153,24 @@ namespace MonsterTournament.Client.Models
 
     public class BattleStateLoader
     {
-        public static readonly string jsonFileName = "state.json";
+        public static readonly string FileExtension = ".mtbs";
+        public static readonly string JsonFileName = "state.json";
 
-        public async Task<byte[]> Save(BattleState battleState)
+        public async Task<MonsterTounamentFile> Save(BattleState model)
         {
             var fileStream = new MemoryStream();
 
             // disposeしないとzipファイルに書き込まれない
             using (var zip = new ZipArchive(fileStream, ZipArchiveMode.Create))
             {
-                var cardEntry = zip.CreateEntry(jsonFileName);
+                var cardEntry = zip.CreateEntry(JsonFileName);
                 using (var cardStream = cardEntry.Open())
                 {
-                    await JsonSerializer.SerializeAsync(cardStream, battleState);
+                    await JsonSerializer.SerializeAsync(cardStream, model);
                 }
             }
 
-            return fileStream.ToArray();
+            return new($"{model.Name}{FileExtension}", fileStream.ToArray());
         }
 
         public async Task<BattleState?> Load(byte[] bytes)
@@ -178,7 +182,7 @@ namespace MonsterTournament.Client.Models
             {
                 Console.WriteLine(entry.Name);
 
-                if (entry.Name == jsonFileName)
+                if (entry.Name == JsonFileName)
                 {
                     using var stream = entry.Open();
                     using var ms = new MemoryStream();
@@ -204,23 +208,24 @@ namespace MonsterTournament.Client.Models
 
     public class SpecialAttackLoader
     {
-        public static readonly string jsonFileName = "special.json";
+        public static readonly string FileExtension = ".mtsa";
+        public static readonly string JsonFileName = "special.json";
 
-        public async Task<byte[]> Save(SpecialAttack model)
+        public async Task<MonsterTounamentFile> Save(SpecialAttack model)
         {
             var fileStream = new MemoryStream();
 
             // disposeしないとzipファイルに書き込まれない
             using (var zip = new ZipArchive(fileStream, ZipArchiveMode.Create))
             {
-                var cardEntry = zip.CreateEntry(jsonFileName);
+                var cardEntry = zip.CreateEntry(JsonFileName);
                 using (var cardStream = cardEntry.Open())
                 {
                     await JsonSerializer.SerializeAsync(cardStream, model);
                 }
             }
 
-            return fileStream.ToArray();
+            return new($"{model.Name}{FileExtension}", fileStream.ToArray());
         }
 
         public async Task<SpecialAttack?> Load(byte[] bytes)
@@ -232,7 +237,7 @@ namespace MonsterTournament.Client.Models
             {
                 Console.WriteLine(entry.Name);
 
-                if (entry.Name == jsonFileName)
+                if (entry.Name == JsonFileName)
                 {
                     using var stream = entry.Open();
                     using var ms = new MemoryStream();

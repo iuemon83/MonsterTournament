@@ -5,7 +5,7 @@
 @inject IJSRuntime JS
 
 <div class="d-flex justify-start align-center gap-1">
-    <MudFileUpload T="IBrowserFile" FilesChanged="LoadCard" Accept=".zip" Class="mr-5">
+    <MudFileUpload T="IBrowserFile" FilesChanged="LoadCard" Accept=@BattleCardLoader.FileExtension Class="mr-5">
         <ActivatorContent>
             <MudButton StartIcon="@Icons.Material.Filled.FileOpen" Variant="Variant.Filled"
                        Color="Color.Primary">開く</MudButton>
@@ -189,7 +189,7 @@
 
     private async Task Download()
     {
-        var bytes = await new BattleCardLoader().Save(battleCard, imageBytes);
-        await fileDownload.DownloadFileFromStream($"{battleCard.Name}.zip", new MemoryStream(bytes));
+        var file = await new BattleCardLoader().Save(battleCard, imageBytes);
+        await fileDownload.DownloadFileFromStream(file.fileName, new MemoryStream(file.Bytes));
     }
 }

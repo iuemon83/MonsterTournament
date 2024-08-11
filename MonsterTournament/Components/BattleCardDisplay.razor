@@ -17,14 +17,14 @@
         }
         else
         {
-            <MudFileUpload T="IBrowserFile" FilesChanged="LoadBattleState" Accept=".zip">
+            <MudFileUpload T="IBrowserFile" FilesChanged="LoadBattleState" Accept=@BattleStateLoader.FileExtension>
                 <ActivatorContent>
                     <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small">状態</MudButton>
                 </ActivatorContent>
             </MudFileUpload>
         }
 
-        <MudFileUpload T="IBrowserFile" FilesChanged="Transform" Accept=".zip">
+        <MudFileUpload T="IBrowserFile" FilesChanged="Transform" Accept=@BattleCardLoader.FileExtension>
             <ActivatorContent>
                 <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Info" Size="Size.Small">変身</MudButton>
             </ActivatorContent>
@@ -39,7 +39,7 @@
         }
         else
         {
-            <MudFileUpload T="IBrowserFile" FilesChanged="LoadSpecial" Accept=".zip">
+            <MudFileUpload T="IBrowserFile" FilesChanged="LoadSpecial" Accept=@SpecialAttackLoader.FileExtension>
                 <ActivatorContent>
                     <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
                         必殺
@@ -61,7 +61,7 @@
 <MudPaper Outlined="true">
     <MudContainer>
         <div class="d-flex align-center justify-start">
-            <MudFileUpload T="IBrowserFile" FilesChanged="LoadNew" Accept=".zip" Class="mr-5">
+            <MudFileUpload T="IBrowserFile" FilesChanged="LoadNew" Accept=@BattleCardLoader.FileExtension Class="mr-5">
                 <ActivatorContent>
                     <MudIconButton Icon="@Icons.Material.Filled.FileOpen"
                                    Variant="Variant.Filled"
