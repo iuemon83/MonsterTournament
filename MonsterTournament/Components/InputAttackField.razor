@@ -7,12 +7,7 @@
 <MudPaper Class="ma-1 pa-2">
     <MudText>@("攻撃" + (@i + 1))</MudText>
     <MudContainer>
-        <MudGrid Justify="Justify.Center">
-            <MudItem xs="12" lg="5">
-                <MudTextField T="string" Label="名前" Required="true"
-                              @bind-Value=battleCardAttack.Name />
-            </MudItem>
-
+        <MudGrid Justify="Justify.FlexStart">
             <MudItem xs="12" lg="2">
                 <MudSelect T="BattleCardAttackType" Label="種類" AnchorOrigin="Origin.BottomCenter" FullWidth="false"
                            @bind-Value=battleCardAttack.Type>
@@ -22,6 +17,20 @@
                     }
                 </MudSelect>
             </MudItem>
+
+            @switch (battleCardAttack.Type)
+            {
+                case BattleCardAttackType.Transform:
+                case BattleCardAttackType.Special:
+                    break;
+
+                default:
+                    <MudItem xs="12" lg="5">
+                        <MudTextField T="string" Label="名前" Required="true"
+                                      @bind-Value=battleCardAttack.Name />
+                    </MudItem>
+                    break;
+            }
 
             <MudItem xs="12" lg="5">
                 @switch (battleCardAttack.Type)
@@ -67,7 +76,7 @@
 
 @code {
     [Parameter]
-    public BattleCardAttack? battleCardAttack { get; set; }
+    public BattleCardAttack battleCardAttack { get; set; } = new();
 
     [Parameter]
     public int i { get; set; }

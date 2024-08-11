@@ -84,14 +84,14 @@
                            @onclick="SubHp" />
         </div>
 
-        <MudContainer Class="d-flex justify-center mb-5">
+        <MudContainer Class="d-flex justify-center mb-3">
             <MudImage id=@cardImageElementId Height="250" Width="250" ObjectPosition="ObjectPosition.Center" />
         </MudContainer>
 
-        <MudContainer Class="d-flex justify-center mb-5 gap-4">
+        <MudContainer Class="d-flex justify-center gap-4 mb-3">
+            <MudText Typo="Typo.body1">@actionName</MudText>
             <MudText Typo="Typo.body1">状態: @this.card.BattleStateName</MudText>
             <MudText Typo="Typo.body1">バフ: @this.card.DiffValue</MudText>
-            <MudText Typo="Typo.body1">必殺: @this.card.SpecialName</MudText>
         </MudContainer>
 
         @foreach (var attack in this.card.Attacks)
@@ -311,18 +311,14 @@
         };
 
     private bool cardLoaded => this.card.Attacks.Any();
+    private string actionName => this.card.SpecialAttackAttached ? $"必殺: {this.card.SpecialName}" : "たたかう";
 
     private readonly string cardImageElementId = Guid.NewGuid().ToString();
-
-    private void Reset()
-    {
-        this.card.Reset();
-    }
 
     private async Task LoadNew(IBrowserFile file)
     {
         await this.LoadCard(file);
-        this.Reset();
+        this.card.Reset();
     }
 
     private async Task Transform(IBrowserFile file)

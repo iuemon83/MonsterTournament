@@ -46,66 +46,7 @@
 
     @foreach (var i in Enumerable.Range(0, battleCard.Attacks.Length))
     {
-        <MudPaper Class="ma-1 pa-2">
-            <MudText>@("攻撃" + (@i + 1))</MudText>
-            <MudContainer>
-                <MudGrid Justify="Justify.Center">
-                    <MudItem xs="12" lg="5">
-                        <MudTextField T="string" Label="名前" Required="true"
-                                      @bind-Value=battleCard.Attacks[i].Name />
-                    </MudItem>
-
-                    <MudItem xs="12" lg="2">
-                        <MudSelect T="BattleCardAttackType" Label="種類" AnchorOrigin="Origin.BottomCenter" FullWidth="false"
-                                   @bind-Value=battleCard.Attacks[i].Type>
-                            @foreach (var t in Enum.GetValues<BattleCardAttackType>())
-                            {
-                                <MudSelectItem Value="@t">@t.ToDisplayString()</MudSelectItem>
-                            }
-                        </MudSelect>
-                    </MudItem>
-
-                    <MudItem xs="12" lg="5">
-                        @switch (battleCard.Attacks[i].Type)
-                        {
-                            case BattleCardAttackType.Attack:
-                            case BattleCardAttackType.Bouhatu:
-                            case BattleCardAttackType.ReAttack:
-                                <MudNumericField Label="威力" Variant="Variant.Text" Min="0"
-                                                 @bind-Value=battleCard.Attacks[i].IntValue />
-                                break;
-                            case BattleCardAttackType.Heal:
-                                <MudNumericField Label="回復量" Variant="Variant.Text" Min="0"
-                                                 @bind-Value=battleCard.Attacks[i].IntValue />
-                                break;
-                            case BattleCardAttackType.Buff:
-                                <MudNumericField Label="上昇量" Variant="Variant.Text"
-                                                 @bind-Value=battleCard.Attacks[i].IntValue />
-                                break;
-                            case BattleCardAttackType.Transform:
-                                <MudTextField T="string" Label="変身先" Required="true"
-                                              @bind-Value=battleCard.Attacks[i].Value />
-                                break;
-                            case BattleCardAttackType.BattleState:
-                                <MudTextField T="string" Label="状態異常" Required="true"
-                                              @bind-Value=battleCard.Attacks[i].Value />
-                                break;
-                            case BattleCardAttackType.Special:
-                                <MudTextField T="string" Label="必殺技" Required="true"
-                                              @bind-Value=battleCard.Attacks[i].Value />
-                                break;
-                            case BattleCardAttackType.Other:
-                                <MudTextField T="string" Label="効果" Required="true"
-                                              @bind-Value=battleCard.Attacks[i].Value />
-                                break;
-                            default:
-                                @(battleCard.Attacks[i].Value = "")
-                                break;
-                        }
-                    </MudItem>
-                </MudGrid>
-            </MudContainer>
-        </MudPaper>
+        <InputAttackField i="@i" battleCardAttack=battleCard.Attacks[i] />
     }
 </MudForm>
 
