@@ -20,7 +20,7 @@ jobs:
 
       # Publish the site
       - name: Publish
-        run: dotnet publish (プロジェクトフォルダ)/(プロジェクト名).csproj -p:GHPages=true -c:Release -o:public
+        run: dotnet publish MonsterTournament/MonsterTournament.csproj -p:GHPages=true -c:Release -o:public
 
       # Deploy the site
       - name: Deploy
