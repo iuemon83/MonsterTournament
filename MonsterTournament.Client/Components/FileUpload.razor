@@ -1,0 +1,24 @@
+﻿@inject IJSRuntime JS
+
+<script>
+    window.setImage = async (imageElementId, imageStream) => {
+        console.log("upload file");
+
+        const arrayBuffer = await imageStream.arrayBuffer();
+        const blob = new Blob([arrayBuffer]);
+        const url = URL.createObjectURL(blob);
+        const image = document.getElementById(imageElementId);
+        image.onload = () => {
+            URL.revokeObjectURL(url);
+        }
+        image.src = url;
+    }
+</script>
+
+@code {
+    public async Task SetImage(string domId, Stream stream)
+    {
+        using var dotnetImageStream = new DotNetStreamReference(stream);
+        await JS.InvokeVoidAsync("setImage", domId, dotnetImageStream);
+    }
+}

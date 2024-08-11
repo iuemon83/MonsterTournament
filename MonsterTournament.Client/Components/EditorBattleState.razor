@@ -1,0 +1,76 @@
+﻿@using System.Text.RegularExpressions
+@using MonsterTournament.Client.Models
+@using System.IO.Compression
+@using System.Text.Json
+@inject IJSRuntime JS
+
+<div class="d-flex justify-start align-center gap-1">
+    <MudFileUpload T="IBrowserFile" FilesChanged="LoadCard" Accept=".zip" Class="mr-5">
+        <ActivatorContent>
+            <MudButton StartIcon="@Icons.Material.Filled.FileOpen" Variant="Variant.Filled"
+                       Color="Color.Primary">開く</MudButton>
+        </ActivatorContent>
+    </MudFileUpload>
+    <MudButton StartIcon="@Icons.Material.Filled.Download" Variant="Variant.Filled" Color="Color.Primary"
+               Disabled="@(!success)" @onclick=Download>ダウンロード</MudButton>
+</div>
+<MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+    <MudTextField T="string" Class="mb-5" Label="名前" Required="true" @bind-Text=battleState.Name RequiredError="name is required!" />
+
+    @foreach (var i in Enumerable.Range(0, battleState.Attacks.Length))
+    {
+        <InputAttackField i="@i" battleCardAttack=battleState.Attacks[i] />
+    }
+</MudForm>
+<FileDownload @ref=fileDownload />
+
+@code {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    MudForm form;
+    FileDownload fileDownload;
+#pragma warning restore CS8618
+
+    bool success;
+    string[] errors = { };
+
+    private readonly string cardImageElementId = Guid.NewGuid().ToString();
+
+    private BattleState battleState = new()
+        {
+            Name = "",
+            Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
+        };
+
+    private async Task LoadCard(IBrowserFile file)
+    {
+        if (file == null)
+        {
+            Console.WriteLine("キャンセル");
+            return;
+        }
+
+        var buffer = new byte[file.Size];
+        using var fileStream = file.OpenReadStream();
+        await fileStream.ReadAsync(buffer);
+
+        var battleStateOrNull = await new BattleStateLoader().Load(buffer);
+
+        if (battleStateOrNull == null)
+        {
+            //TODO : カードの読み込みに失敗 error handling
+            Console.WriteLine("カードの読み込みに失敗");
+            return;
+        }
+
+        battleState = battleStateOrNull;
+
+        StateHasChanged();
+        await form.Validate();
+    }
+
+    private async Task Download()
+    {
+        var bytes = await new BattleStateLoader().Save(battleState);
+        await fileDownload.DownloadFileFromStream($"{battleState.Name}.zip", new MemoryStream(bytes));
+    }
+}
