@@ -126,8 +126,12 @@
                                     <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.Description</MudText>
                                 </MudItem>
                             }
+
                             <MudItem sm="3">
-                                <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.StatusDescription</MudText>
+                                <div class="d-flex gap-2">
+                                    <MudDivider Vertical="true" FlexItem="true" />
+                                    <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.StatusDescription</MudText>
+                                </div>
                             </MudItem>
                         }
                     </MudGrid>

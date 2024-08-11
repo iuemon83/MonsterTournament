@@ -18,18 +18,21 @@
                 </MudSelect>
             </MudItem>
 
-            @switch (battleCardAttack.Type)
+            @if (requireName)
             {
-                case BattleCardAttackType.Transform:
-                case BattleCardAttackType.Special:
-                    break;
+                @switch (battleCardAttack.Type)
+                {
+                    case BattleCardAttackType.Transform:
+                    case BattleCardAttackType.Special:
+                        break;
 
-                default:
-                    <MudItem xs="12" lg="5">
-                        <MudTextField T="string" Label="名前" Required="true"
-                                      @bind-Value=battleCardAttack.Name />
-                    </MudItem>
-                    break;
+                    default:
+                        <MudItem xs="12" lg="5">
+                            <MudTextField T="string" Label="名前" Required="true"
+                                          @bind-Value=battleCardAttack.Name />
+                        </MudItem>
+                        break;
+                }
             }
 
             <MudItem xs="12" lg="5">
@@ -80,4 +83,7 @@
 
     [Parameter]
     public int i { get; set; }
+
+    [Parameter]
+    public bool requireName { get; set; } = true;
 }

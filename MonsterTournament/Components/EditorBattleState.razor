@@ -19,7 +19,7 @@
 
     @foreach (var i in Enumerable.Range(0, battleState.Attacks.Length))
     {
-        <InputAttackField i="@i" battleCardAttack=battleState.Attacks[i] />
+        <InputAttackField i="@i" battleCardAttack=battleState.Attacks[i] requireName="false" />
     }
 </MudForm>
 <FileDownload @ref=fileDownload />
