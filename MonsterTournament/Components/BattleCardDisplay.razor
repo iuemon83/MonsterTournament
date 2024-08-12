@@ -85,7 +85,7 @@
         </div>
 
         <MudContainer Class="d-flex justify-center mb-3">
-            <MudImage id=@cardImageElementId Height="250" Width="250" ObjectPosition="ObjectPosition.Center" />
+            <MudImage id=@cardImageElementId Class="@(card.IsAlive ? "" : "monochrome")" Height="250" Width="250" ObjectPosition="ObjectPosition.Center" />
         </MudContainer>
 
         <MudContainer Class="d-flex justify-center gap-4 mb-3">
@@ -143,13 +143,15 @@
     </MudContainer>
 </MudPaper>
 
-<FileUpload @ref=fileUpload />
-<FileDownload @ref=fileDownload />
+<FileUploader @ref=fileUpload />
+<FileDownloader @ref=fileDownload />
+<AudioPlayer @ref=audioPlayer />
 
 @code {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    FileUpload fileUpload;
-    FileDownload fileDownload;
+    FileUploader fileUpload;
+    FileDownloader fileDownload;
+    AudioPlayer audioPlayer;
 #pragma warning restore CS8618
 
     class BattleCardVM
@@ -160,6 +162,8 @@
         public BattleCardAttackVM[] Attacks { get; set; } = [];
         private BattleState? battleStateOrNull;
         private SpecialAttack? specialAttackOrNull;
+
+        public bool IsAlive => CurrentHp > 0;
 
         public bool BattleStateAttached => battleStateOrNull != null;
         public string BattleStateName => battleStateOrNull?.Name ?? "なし";
@@ -234,14 +238,20 @@
             }
         }
 
-        public void AddHp()
+        public int AddHp()
         {
-            this.CurrentHp = Math.Min(this.CurrentHp + 10, this.Def.Hp);
+            var heal = Math.Min(10, Def.Hp - CurrentHp);
+            this.CurrentHp += heal;
+
+            return heal;
         }
 
-        public void SubHp()
+        public int SubHp()
         {
-            this.CurrentHp = Math.Max(this.CurrentHp - 10, 0);
+            var damage = Math.Min(this.CurrentHp, 10);
+            this.CurrentHp -= damage;
+
+            return damage;
         }
 
         public void Buff()
@@ -415,14 +425,29 @@
         this.card.DettacheSpecial();
     }
 
-    private void AddHp()
+    private async Task AddHp()
     {
-        this.card.AddHp();
+        var v = this.card.AddHp();
+        if (v > 0)
+        {
+            await this.audioPlayer.Play(AudioSrc.Heal);
+        }
     }
 
-    private void SubHp()
+    private async Task SubHp()
     {
-        this.card.SubHp();
+        var v = this.card.SubHp();
+        if (v > 0)
+        {
+            if (this.card.IsAlive)
+            {
+                await this.audioPlayer.Play(AudioSrc.Damage);
+            }
+            else
+            {
+                await this.audioPlayer.Play(AudioSrc.Death);
+            }
+        }
     }
 
     private async Task Attack()
@@ -458,5 +483,6 @@
         StateHasChanged();
         await Task.Delay(TimeSpan.FromSeconds(0.3));
         attack.IsSelected = true;
+        await this.audioPlayer.Play(AudioSrc.Action);
     }
 }

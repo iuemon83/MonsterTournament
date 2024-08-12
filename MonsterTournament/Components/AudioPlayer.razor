@@ -1,0 +1,25 @@
+﻿@inject IJSRuntime JS
+
+<audio id="audioPlayer"></audio>
+
+
+<script>
+    const audioPlayer = document.getElementById('audioPlayer');
+
+    window.playAudio = (audioSrc) => {
+        // 音声ソースを変更
+        audioPlayer.src = audioSrc;
+
+        // 音声を再生
+        audioPlayer.play().catch(function (error) {
+            console.error('再生エラー:', error);
+        });
+    }
+</script>
+
+@code {
+    public async Task Play(string audioSrc)
+    {
+        await JS.InvokeVoidAsync("playAudio", audioSrc);
+    }
+}
