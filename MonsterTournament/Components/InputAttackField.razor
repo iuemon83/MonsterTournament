@@ -42,25 +42,68 @@
                 @switch (battleCardAttack.Type)
                 {
                     case BattleCardAttackType.Attack:
-                    case BattleCardAttackType.Bouhatu:
                     case BattleCardAttackType.ReAttack:
-                        <MudNumericField Label="威力" Variant="Variant.Text" Min="0"
-                                         @bind-Value=battleCardAttack.IntValue />
+                        <div class="d-flex justify-start align-center gap-1">
+                            <MudSelect T="AttackTarget" Label="ターゲット" AnchorOrigin="Origin.BottomCenter" FullWidth="false"
+                                       @bind-Value=battleCardAttack.Target>
+                                @foreach (var t in Enum.GetValues<AttackTarget>())
+                                {
+                                    <MudSelectItem Value="@t">
+                                        @t.ToDisplayString()
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudNumericField Label="威力" Variant="Variant.Text" Min="0"
+                                             @bind-Value=battleCardAttack.IntValue />
+                        </div>
                         break;
                     case BattleCardAttackType.Heal:
-                        <MudNumericField Label="回復量" Variant="Variant.Text" Min="0"
-                                         @bind-Value=battleCardAttack.IntValue />
+                        <div class="d-flex justify-start align-center gap-1">
+                            <MudSelect T="AttackTarget" Label="ターゲット" AnchorOrigin="Origin.BottomCenter" FullWidth="false"
+                                       @bind-Value=battleCardAttack.Target>
+                                @foreach (var t in Enum.GetValues<AttackTarget>())
+                                {
+                                    <MudSelectItem Value="@t">
+                                        @t.ToDisplayString()
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudNumericField Label="回復量" Variant="Variant.Text" Min="0"
+                                             @bind-Value=battleCardAttack.IntValue />
+                        </div>
                         break;
                     case BattleCardAttackType.Buff:
-                        <MudNumericField Label="上昇量" Variant="Variant.Text"
-                                         @bind-Value=battleCardAttack.IntValue />
+                        <div class="d-flex justify-start align-center gap-1">
+                            <MudSelect T="AttackTarget" Label="ターゲット" AnchorOrigin="Origin.BottomCenter" FullWidth="false"
+                                       @bind-Value=battleCardAttack.Target>
+                                @foreach (var t in Enum.GetValues<AttackTarget>())
+                                {
+                                    <MudSelectItem Value="@t">
+                                        @t.ToDisplayString()
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudNumericField Label="上昇量" Variant="Variant.Text"
+                                             @bind-Value=battleCardAttack.IntValue />
+                        </div>
+                        break;
+                    case BattleCardAttackType.BattleState:
+                        <div class="d-flex justify-start align-center gap-1">
+                            <MudSelect T="AttackTarget" Label="ターゲット" AnchorOrigin="Origin.BottomCenter" FullWidth="false"
+                                       @bind-Value=battleCardAttack.Target>
+                                @foreach (var t in Enum.GetValues<AttackTarget>())
+                                {
+                                    <MudSelectItem Value="@t">
+                                        @t.ToDisplayString()
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudTextField T="string" Label="状態異常" Required="true"
+                                          @bind-Value=battleCardAttack.Value />
+                        </div>
                         break;
                     case BattleCardAttackType.Transform:
                         <MudTextField T="string" Label="変身先" Required="true"
-                                      @bind-Value=battleCardAttack.Value />
-                        break;
-                    case BattleCardAttackType.BattleState:
-                        <MudTextField T="string" Label="状態異常" Required="true"
                                       @bind-Value=battleCardAttack.Value />
                         break;
                     case BattleCardAttackType.Special:

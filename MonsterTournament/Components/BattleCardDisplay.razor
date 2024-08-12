@@ -312,11 +312,11 @@
             return a.Type switch
             {
                 BattleCardAttackType.Miss => "ミス",
-                BattleCardAttackType.Attack => $"{intValueWithBuff}ダメージ",
-                BattleCardAttackType.Heal => $"{intValueWithBuff}回復",
-                BattleCardAttackType.Bouhatu => $"自分に{intValueWithBuff}",
-                BattleCardAttackType.ReAttack => $"もう一度・{intValueWithBuff}",
-                BattleCardAttackType.Buff => $"攻撃を{a.IntValue:+#;-#;0}",
+                BattleCardAttackType.Attack => $"{a.Target.ToDisplayString()}に{intValueWithBuff}ダメージ",
+                BattleCardAttackType.Heal => $"{a.Target.ToDisplayString()}を{intValueWithBuff}回復",
+                BattleCardAttackType.ReAttack => $"もう一度・{a.Target.ToDisplayString()}に{intValueWithBuff}",
+                BattleCardAttackType.Buff => $"{a.Target.ToDisplayString()}の攻撃を{a.IntValue:+#;-#;0}",
+                BattleCardAttackType.BattleState => $"{a.Target.ToDisplayString()}を状態異常:{a.Value}",
                 BattleCardAttackType.Special => $"必殺技:{a.Value}",
                 BattleCardAttackType.Transform => $"{a.Value}に変身",
                 _ => a.Value,

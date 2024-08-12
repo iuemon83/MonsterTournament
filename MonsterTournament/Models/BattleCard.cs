@@ -32,7 +32,6 @@ namespace MonsterTournament.Client.Models
         Miss,
         Attack,
         Heal,
-        Bouhatu,
         ReAttack,
         BattleState,
         Special,
@@ -50,7 +49,6 @@ namespace MonsterTournament.Client.Models
                 BattleCardAttackType.Miss => "ミス",
                 BattleCardAttackType.Attack => "攻撃",
                 BattleCardAttackType.Heal => "回復",
-                BattleCardAttackType.Bouhatu => "暴発",
                 BattleCardAttackType.ReAttack => "再攻撃",
                 BattleCardAttackType.BattleState => "状態異常",
                 BattleCardAttackType.Special => "必殺技",
@@ -61,9 +59,31 @@ namespace MonsterTournament.Client.Models
         }
     }
 
+    public enum AttackTarget
+    {
+        Self,
+        Enemy,
+        All,
+    }
+
+    public static class AttackTargetExtensions
+    {
+        public static string ToDisplayString(this AttackTarget type)
+        {
+            return type switch
+            {
+                AttackTarget.Self => "自分",
+                AttackTarget.Enemy => "相手",
+                AttackTarget.All => "お互い",
+                _ => "エラー",
+            };
+        }
+    }
+
     public class BattleCardAttack
     {
         public BattleCardAttackType Type { get; set; }
+        public AttackTarget Target { get; set; }
         public string Name { get; set; } = "";
         public string Value { get; set; } = "";
         public int IntValue { get; set; } = 0;
