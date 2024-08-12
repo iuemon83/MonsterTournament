@@ -1,12 +1,11 @@
 ﻿@inject IJSRuntime JS
 
-<audio id="audioPlayer"></audio>
+<audio id=@elementId></audio>
 
 
 <script>
-    const audioPlayer = document.getElementById('audioPlayer');
-
-    window.playAudio = (audioSrc) => {
+    window.playAudio = (elementId, audioSrc) => {
+        const audioPlayer = document.getElementById(elementId);
         // 音声ソースを変更
         audioPlayer.src = audioSrc;
 
@@ -18,8 +17,10 @@
 </script>
 
 @code {
+    private readonly string elementId = Guid.NewGuid().ToString();
+
     public async Task Play(string audioSrc)
     {
-        await JS.InvokeVoidAsync("playAudio", audioSrc);
+        await JS.InvokeVoidAsync("playAudio", elementId, audioSrc);
     }
 }

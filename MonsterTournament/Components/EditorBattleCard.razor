@@ -18,7 +18,7 @@
     <MudTextField T="string" Class="mb-5" Label="名前" Required="true" @bind-Text=battleCard.Name RequiredError="name is required!" />
     <MudNumericField Class="mb-5" Label="HP" Variant="Variant.Text" Min="0" @bind-Value=battleCard.Hp />
 
-    <MudFileUpload T="IBrowserFile" @ref=mudFileUpload FilesChanged="UploadImage" Accept=".png, .jpg">
+    <MudFileUpload T="IBrowserFile" @ref=mudFileUpload FilesChanged="UploadImage" Accept=".png, .jpg, .gif">
         <ActivatorContent>
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
@@ -28,7 +28,7 @@
         </ActivatorContent>
     </MudFileUpload>
 
-    <MudContainer Class="d-flex justify-center mb-5">
+    <div Class="d-flex justify-center mb-5 gap-5">
         @if (imageBytes.Length > 0)
         {
             <MudImage id=@cardImageElementId Height=@Config.ImageSize.Y Width=@Config.ImageSize.X
@@ -42,7 +42,10 @@
                 <MudText>画像(@(Config.ImageSize.X)x@(Config.ImageSize.Y))</MudText>
             </MudPaper>
         }
-    </MudContainer>
+
+        <MudTextField T="string" Label="フレーバーテキスト" Variant="Variant.Text" @bind-Text="@battleCard.FlavorText" Lines="5" />
+    </div>
+
 
     @foreach (var i in Enumerable.Range(0, battleCard.Attacks.Length))
     {
