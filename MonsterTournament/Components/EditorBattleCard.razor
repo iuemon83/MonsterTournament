@@ -90,7 +90,7 @@
         battleCard.ImageFileName = file.Name;
 
         var buffer = new byte[file.Size];
-        using var fileStream = file.OpenReadStream();
+        using var fileStream = file.OpenReadStream(Config.MaxImageFileSizeInBytes);
         await fileStream.ReadAsync(buffer);
         imageBytes = buffer;
 

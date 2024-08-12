@@ -362,7 +362,7 @@
         }
 
         var buffer = new byte[file.Size];
-        await file.OpenReadStream().ReadAsync(buffer);
+        await file.OpenReadStream(Config.MaxCardFileSizeInBytes).ReadAsync(buffer);
 
         var (cardOrNull, imageBytes) = await new BattleCardLoader().Load(buffer);
 
