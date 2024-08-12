@@ -51,9 +51,9 @@
         <div class="d-flex justify-center align-center gap-1">
             バフ:
             <MudIconButton Disabled=!this.cardLoaded Icon="@Icons.Material.Filled.KeyboardDoubleArrowUp" Variant="Variant.Filled"
-                           Color="Color.Primary" Size="Size.Small" @onclick="this.card.Buff" />
+                           Color="Color.Primary" Size="Size.Small" @onclick="this.Buff" />
             <MudIconButton Disabled=!this.cardLoaded Icon="@Icons.Material.Filled.KeyboardDoubleArrowDown" Variant="Variant.Filled"
-                           Color="Color.Secondary" Size="Size.Small" @onclick="this.card.Debuff" />
+                           Color="Color.Secondary" Size="Size.Small" @onclick="this.Debuff" />
         </div>
     </MudContainer>
 </MudPaper>
@@ -459,6 +459,18 @@
         }
     }
 
+    private async Task Buff()
+    {
+        this.card.Buff();
+        await this.audioPlayer.Play(AudioSrc.Buff);
+    }
+
+    private async Task Debuff()
+    {
+        this.card.Debuff();
+        await this.audioPlayer.Play(AudioSrc.Buff);
+    }
+
     private async Task Attack()
     {
         foreach (var a in this.card.Attacks)
@@ -483,6 +495,7 @@
                 this.card.Attacks[j].IsSelected = true;
 
                 StateHasChanged();
+                await this.audioPlayer.Play(AudioSrc.ActionRoulette);
                 await Task.Delay(TimeSpan.FromSeconds(0.1));
             }
         }
@@ -490,7 +503,7 @@
         this.card.Attacks[^1].IsSelected = false;
 
         StateHasChanged();
-        await Task.Delay(TimeSpan.FromSeconds(0.3));
+        await Task.Delay(TimeSpan.FromSeconds(0.5));
         attack.IsSelected = true;
         await this.audioPlayer.Play(AudioSrc.Action);
     }
