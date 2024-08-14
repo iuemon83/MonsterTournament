@@ -33,7 +33,7 @@ namespace MonsterTournament.Models
                 }
             }
 
-            return new($"{model.Name}{FileExtension}", fileStream.ToArray());
+            return new($"{model.Main.Name}{FileExtension}", fileStream.ToArray());
         }
 
         public async Task<(BattleCard?, Dictionary<string, byte[]> Images)> Load(byte[] bytes)
@@ -66,30 +66,21 @@ namespace MonsterTournament.Models
             }
 
             var imagesByName = new Dictionary<string, byte[]>();
+            var imageNames = new[] { cardOrNull.Main.ImageFileName }
+                .Concat(cardOrNull.Transforms.Select(t => t.ImageFileName))
+                .ToArray();
             foreach (var entry in archive.Entries)
             {
-                if (entry.Name == cardOrNull.ImageFileName)
+                foreach (var name in imageNames)
                 {
-                    Console.WriteLine("image found");
-
-                    var imageMs = new MemoryStream();
-                    using var stream = entry.Open();
-                    await stream.CopyToAsync(imageMs);
-                    imagesByName.Add(cardOrNull.ImageFileName, imageMs.ToArray());
-                }
-                else
-                {
-                    foreach (var t in cardOrNull.Transforms)
+                    if (entry.Name == name)
                     {
-                        if (entry.Name == t.ImageFileName)
-                        {
-                            Console.WriteLine("transform image found");
+                        Console.WriteLine("transform image found");
 
-                            var imageMs = new MemoryStream();
-                            using var stream = entry.Open();
-                            await stream.CopyToAsync(imageMs);
-                            imagesByName.Add(t.ImageFileName, imageMs.ToArray());
-                        }
+                        var imageMs = new MemoryStream();
+                        using var stream = entry.Open();
+                        await stream.CopyToAsync(imageMs);
+                        imagesByName.Add(name, imageMs.ToArray());
                     }
                 }
             }

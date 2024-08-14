@@ -3,55 +3,54 @@
 @using System.Text.Json
 @using MonsterTournament.Models
 @inject IJSRuntime JS
+@inject IDialogService DialogService
 
 <MudPaper Outlined="true" Class="mb-5">
     <MudContainer Class="d-flex justify-center align-center gap-4 ma-2">
         <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Success" Size="Size.Large"
                    @onclick="Attack">攻撃</MudButton>
 
-        @if (this.card.BattleStateAttached)
-        {
-            <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" @onclick="DettachBattleState">
-                状態:解除
-            </MudButton>
-        }
-        else
-        {
-            <MudFileUpload T="IBrowserFile" FilesChanged="LoadBattleState" Accept=@BattleStateLoader.FileExtension>
-                <ActivatorContent>
-                    <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small">状態</MudButton>
-                </ActivatorContent>
-            </MudFileUpload>
-        }
+        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" OverrideStyles="false">
+            @if (this.monster.BattleStateAttached)
+            {
+                <MudButton Disabled=!this.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Warning"
+                           @onclick="this.monster.DettacheBattleState">
+                    <AttackIcon AttackType="BattleCardAttackType.BattleState" />解除
+                </MudButton>
+            }
+            else
+            {
+                <MudButton Disabled=!this.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Warning"
+                           @onclick="ShowStateDialog">
+                    <AttackIcon AttackType="BattleCardAttackType.BattleState" />
+                </MudButton>
+            }
 
-        <MudFileUpload T="IBrowserFile" FilesChanged="Transform" Accept=@BattleCardLoader.FileExtension>
-            <ActivatorContent>
-                <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Info" Size="Size.Small">変身</MudButton>
-            </ActivatorContent>
-        </MudFileUpload>
-
-        @if (this.card.SpecialAttackAttached)
-        {
-            <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small"
-                       @onclick="DettachSpecial">
-                必殺:解除
+            <MudButton Disabled=!this.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
+                       @onclick="ShowTransformDialog">
+                <AttackIcon AttackType="BattleCardAttackType.Transform" />
             </MudButton>
-        }
-        else
-        {
-            <MudFileUpload T="IBrowserFile" FilesChanged="LoadSpecial" Accept=@SpecialAttackLoader.FileExtension>
-                <ActivatorContent>
-                    <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small">
-                        必殺
-                    </MudButton>
-                </ActivatorContent>
-            </MudFileUpload>
-        }
+
+            @if (this.monster.SpecialAttackAttached)
+            {
+                <MudButton Disabled=!this.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
+                           @onclick="this.monster.DettacheSpecial">
+                    <AttackIcon AttackType="BattleCardAttackType.Special" />解除
+                </MudButton>
+            }
+            else
+            {
+                <MudButton Disabled=!this.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
+                           @onclick="ShowSpecialDialog">
+                    <AttackIcon AttackType="BattleCardAttackType.Special" />
+                </MudButton>
+            }
+        </MudButtonGroup>
 
         <div class="d-flex justify-center align-center gap-1">
             バフ:
             <MudIconButton Disabled=!this.cardLoaded Icon="@Icons.Material.Filled.KeyboardDoubleArrowUp" Variant="Variant.Filled"
-                           Color="Color.Primary" Size="Size.Small" @onclick="this.Buff" />
+                           Color="Color.Success" Size="Size.Small" @onclick="this.Buff" />
             <MudIconButton Disabled=!this.cardLoaded Icon="@Icons.Material.Filled.KeyboardDoubleArrowDown" Variant="Variant.Filled"
                            Color="Color.Secondary" Size="Size.Small" @onclick="this.Debuff" />
         </div>
@@ -61,21 +60,13 @@
 <MudPaper Outlined="true">
     <MudContainer>
         <div class="d-flex align-center justify-start">
-            <MudFileUpload T="IBrowserFile" FilesChanged="LoadNew" Accept=@BattleCardLoader.FileExtension Class="mr-5">
-                <ActivatorContent>
-                    <MudIconButton Icon="@Icons.Material.Filled.FileOpen"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   Size="Size.Small" />
-                </ActivatorContent>
-            </MudFileUpload>
-            <MudText Class="overflow-hidden" Typo="Typo.h4">@card.Def.Name</MudText>
+            <MudText Class="overflow-hidden" Typo="Typo.h4">@monster.Def.Name</MudText>
         </div>
         <div class="d-flex align-center justify-start gap-1">
             <MudText Typo="Typo.body1" Class="mr-5">HP: </MudText>
-            <MudProgressLinear Class="mr-5" Value="@card.CurrentHp" Min="0" Max="@card.Def.Hp" Color="Color.Success" Size="Size.Large">
+            <MudProgressLinear Class="mr-5" Value="@monster.CurrentHp" Min="0" Max="@monster.Def.Hp" Color="Color.Success" Size="Size.Large">
                 <MudText Typo="Typo.h5" Color="Color.Dark" Style="-webkit-text-stroke: 1px #FFF;">
-                    <b>@card.CurrentHp / @card.Def.Hp</b>
+                    <b>@monster.CurrentHp / @monster.Def.Hp</b>
                 </MudText>
             </MudProgressLinear>
             <MudIconButton Icon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Success" Size="Size.Small"
@@ -85,18 +76,18 @@
         </div>
 
         <MudContainer Class="d-flex justify-center mb-3">
-            <MudImage id=@cardImageElementId Class="@(card.IsAlive ? "" : "monochrome")" Height="250" Width="250" ObjectPosition="ObjectPosition.Center" />
+            <MudImage id=@cardImageElementId Class="@(monster.IsAlive ? "" : "monochrome")" Height="250" Width="250" ObjectPosition="ObjectPosition.Center" />
         </MudContainer>
 
         <MudContainer Class="d-flex justify-center gap-4 mb-3">
-            <MudText Typo="Typo.body1">状態: @this.card.BattleStateName</MudText>
-            <MudText Typo="Typo.body1">バフ: @this.card.DiffValue</MudText>
+            <MudText Typo="Typo.body1">状態: @this.monster.BattleStateName</MudText>
+            <MudText Typo="Typo.body1">バフ: @this.monster.DiffValue</MudText>
         </MudContainer>
 
 
         <MudTabs PanelClass="pa-2">
             <MudTabPanel Text="@actionName">
-                @foreach (var attack in this.card.Attacks)
+                @foreach (var attack in this.monster.Attacks)
                 {
                     <MudPaper Outlined="true" Class="@($"{(attack.IsSelected ? "mud-primary" : "")} pa-2 mb-2")">
                         <MudGrid Justify="Justify.FlexStart">
@@ -104,7 +95,7 @@
                                 <AttackIcon AttackType="@attack.Type" />
                             </MudItem>
 
-                            @if (this.card.SpecialAttackAttached)
+                            @if (this.monster.SpecialAttackAttached)
                             {
                                 <MudItem sm="4">
                                     <MudText Class="overflow-hidden" Typo="Typo.body1">@attack.SpecialName</MudText>
@@ -144,7 +135,7 @@
                 }
             </MudTabPanel>
             <MudTabPanel Text="フレーバーテキスト">
-                <MudText Class="overflow-hidden" Typo="Typo.subtitle1">@card.FlavorText</MudText>
+                <MudText Class="overflow-hidden" Typo="Typo.subtitle1">@monster.FlavorText</MudText>
             </MudTabPanel>
         </MudTabs>
     </MudContainer>
@@ -155,24 +146,31 @@
 <AudioPlayer @ref=audioPlayer />
 
 @code {
+    public BattleCard? My;
+    public Dictionary<string, byte[]> MyImagesByName = [];
+
+    public BattleCard? Enemy;
+    public Dictionary<string, byte[]> EnemyImagesByName = [];
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     FileUploader fileUpload;
     FileDownloader fileDownload;
     AudioPlayer audioPlayer;
 #pragma warning restore CS8618
 
-    class BattleCardVM
+    class MonsterVM
     {
-        public BattleCard Def { get; set; }
+        public Monster Def { get; set; }
         public int CurrentHp { get; set; }
         public int DiffValue { get; set; }
         public BattleCardAttackVM[] Attacks { get; set; } = [];
-        private BattleState? battleStateOrNull;
-        private SpecialAttack? specialAttackOrNull;
+        public BattleState? battleStateOrNull;
+        public SpecialAttack? specialAttackOrNull;
 
         public bool IsAlive => CurrentHp > 0;
 
-        public MarkupString FlavorText => (MarkupString)System.Web.HttpUtility.HtmlEncode(Def.FlavorText).Replace("\n", "<br />");
+        public MarkupString FlavorText
+            => (MarkupString)System.Web.HttpUtility.HtmlEncode(Def.FlavorText).Replace("\n", "<br />");
 
         public bool BattleStateAttached => battleStateOrNull != null;
         public string BattleStateName => battleStateOrNull?.Name ?? "なし";
@@ -180,7 +178,7 @@
         public bool SpecialAttackAttached => specialAttackOrNull != null;
         public string SpecialName => specialAttackOrNull?.Name ?? "なし";
 
-        public BattleCardVM(BattleCard source)
+        public MonsterVM(Monster source)
         {
             Def = source;
             CurrentHp = source.Hp;
@@ -188,7 +186,7 @@
             Attacks = source.Attacks.Select(a => new BattleCardAttackVM(a)).ToArray();
         }
 
-        public BattleCardVM(BattleCard source, BattleCardVM baseCard) : this(source)
+        public MonsterVM(Monster source, MonsterVM baseCard) : this(source)
         {
             // 現在の状態を引き継ぐ
             this.CurrentHp = Math.Min(this.Def.Hp, baseCard.CurrentHp);
@@ -324,7 +322,9 @@
         }
     }
 
-    private BattleCardVM card = new BattleCardVM(new()
+    private BattleCard? battleCard = default;
+
+    private MonsterVM monster = new MonsterVM(new()
         {
             Name = "",
             Hp = 0,
@@ -337,110 +337,134 @@
             CurrentHp = 0
         };
 
-    private bool cardLoaded => this.card.Attacks.Any();
-    private string actionName => this.card.SpecialAttackAttached ? $"必殺: {this.card.SpecialName}" : "たたかう";
+    private bool cardLoaded => this.monster.Attacks.Any();
+    private string actionName => this.monster.SpecialAttackAttached ? $"必殺: {this.monster.SpecialName}" : "たたかう";
 
     private readonly string cardImageElementId = Guid.NewGuid().ToString();
 
-    private async Task LoadNew(IBrowserFile file)
-    {
-        await this.LoadCard(file);
-        this.card.Reset();
-    }
+    private IReadOnlyList<Monster> Transforms => (this.My == null ? [] : new[] { this.My.Main })
+        .Concat(this.My?.Transforms ?? [])
+        .Concat((this.Enemy == null ? [] : new[] { this.Enemy.Main }))
+        .Concat(this.Enemy?.Transforms ?? [])
+        .ToArray();
 
-    private async Task Transform(IBrowserFile file)
-    {
-        await this.LoadCard(file);
-    }
+    private IReadOnlyList<BattleState?> BattleStates => new[] { (BattleState?)null }
+        .Concat(this.My?.BattleStates ?? [])
+        .Concat(this.Enemy?.BattleStates ?? [])
+        .ToArray();
 
-    private async Task LoadCard(IBrowserFile file)
+    private IReadOnlyList<SpecialAttack?> Specials => new[] { (SpecialAttack?)null }
+        .Concat(this.My?.SpecialAttacks ?? [])
+        .Concat(this.Enemy?.SpecialAttacks ?? [])
+        .ToArray();
+
+    public async Task LoadMyCard(BattleCard card, Dictionary<string, byte[]> imagesByName)
     {
-        if (file == null)
+        this.My = card;
+        this.MyImagesByName = imagesByName;
+
+        this.monster = new MonsterVM(card.Main);
+        var imageBytes = imagesByName.TryGetValue(monster.Def.ImageFileName, out var bytes) ? bytes : [];
+        if (imageBytes.Length != 0)
         {
-            Console.WriteLine("キャンセル");
-            return;
+            await this.fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
         }
 
-        var buffer = new byte[file.Size];
-        await file.OpenReadStream(Config.MaxCardFileSizeInBytes).ReadAsync(buffer);
+        StateHasChanged();
+    }
 
-        var (cardOrNull, imagesByName) = await new BattleCardLoader().Load(buffer);
+    public void LoadEnemyCard(BattleCard card, Dictionary<string, byte[]> imagesByName)
+    {
+        this.Enemy = card;
+        this.EnemyImagesByName = imagesByName;
+    }
 
-        if (cardOrNull == null)
+    private async Task Transform(Monster transform)
+    {
+        this.monster = monster == null ? new(transform) : new(transform, this.monster);
+        var imageBytes = this.MyImagesByName.TryGetValue(monster.Def.ImageFileName, out var bytes) ? bytes : [];
+        if (imageBytes.Length != 0)
         {
-            //TODO : カードの読み込みに失敗 error handling
-            Console.WriteLine("カードの読み込みに失敗");
-            return;
+            await this.fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
         }
-
-        card = card == null ? new(cardOrNull) : new(cardOrNull, card);
-
-        var imageBytes = imagesByName.TryGetValue(card.Def.ImageFileName, out var bytes) ? bytes : [];
+        imageBytes = this.EnemyImagesByName.TryGetValue(monster.Def.ImageFileName, out bytes) ? bytes : [];
         if (imageBytes.Length != 0)
         {
             await this.fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
         }
     }
 
-    private async Task LoadBattleState(IBrowserFile file)
+    private async Task ShowStateDialog()
     {
-        if (file == null)
+        var parameters = new DialogParameters<SimpleChoiceDialog<BattleState>>(){
+            { x => x.ChoiceItems, BattleStates },
+            { x => x.ItemToString, new Func<BattleState?, string>(x => x == null ? "なし" : x.Name) }
+        };
+
+        var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<BattleState>>("状態", parameters);
+        var result = await dialog.Result;
+
+        if (!(result?.Canceled ?? true))
         {
-            // キャンセル
-            return;
+            var selectedValue = result.Data as BattleState;
+            if (selectedValue == null)
+            {
+                this.monster.DettacheBattleState();
+            }
+            else
+            {
+                this.monster.AttacheBattleState(selectedValue);
+            }
         }
-
-        var buffer = new byte[file.Size];
-        await file.OpenReadStream().ReadAsync(buffer);
-
-        var battleStateOrNull = await new BattleStateLoader().Load(buffer);
-
-        if (battleStateOrNull == null)
-        {
-            //TODO : カードの読み込みに失敗 error handling
-            Console.WriteLine("カードの読み込みに失敗");
-            return;
-        }
-
-        this.card.AttacheBattleState(battleStateOrNull);
     }
 
-    private void DettachBattleState()
+    private async Task ShowSpecialDialog()
     {
-        this.card.DettacheBattleState();
+        var parameters = new DialogParameters<SimpleChoiceDialog<SpecialAttack>>(){
+            { x => x.ChoiceItems, Specials },
+            { x => x.ItemToString, new Func<SpecialAttack, string>(x => x == null ? "なし" : x.Name) }
+        };
+
+        var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<SpecialAttack>>("必殺", parameters);
+        var result = await dialog.Result;
+
+        if (!(result?.Canceled ?? true))
+        {
+            var selectedValue = result.Data as SpecialAttack;
+            if (selectedValue == null)
+            {
+                this.monster.DettacheSpecial();
+            }
+            else
+            {
+                this.monster.AttacheSpecial(selectedValue);
+            }
+        }
     }
 
-    private async Task LoadSpecial(IBrowserFile file)
+    private async Task ShowTransformDialog()
     {
-        if (file == null)
+        var parameters = new DialogParameters<SimpleChoiceDialog<Monster>>(){
+            { x => x.ChoiceItems, Transforms },
+            { x => x.ItemToString, new Func<Monster, string>(x => x == null ? "なし" : x.Name) }
+        };
+
+        var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<Monster>>("変身", parameters);
+        var result = await dialog.Result;
+
+        if (!(result?.Canceled ?? true))
         {
-            // キャンセル
-            return;
+            var selectedValue = result.Data as Monster;
+            if (selectedValue != null)
+            {
+                await this.Transform(selectedValue);
+            }
         }
-
-        var buffer = new byte[file.Size];
-        await file.OpenReadStream().ReadAsync(buffer);
-
-        var specialOrNull = await new SpecialAttackLoader().Load(buffer);
-
-        if (specialOrNull == null)
-        {
-            //TODO : カードの読み込みに失敗 error handling
-            Console.WriteLine("カードの読み込みに失敗");
-            return;
-        }
-
-        this.card.AttacheSpecial(specialOrNull);
-    }
-
-    private void DettachSpecial()
-    {
-        this.card.DettacheSpecial();
     }
 
     private async Task AddHp()
     {
-        var v = this.card.AddHp();
+        var v = this.monster.AddHp();
         if (v > 0)
         {
             await this.audioPlayer.Play(AudioSrc.Heal);
@@ -449,10 +473,10 @@
 
     private async Task SubHp()
     {
-        var v = this.card.SubHp();
+        var v = this.monster.SubHp();
         if (v > 0)
         {
-            if (this.card.IsAlive)
+            if (this.monster.IsAlive)
             {
                 await this.audioPlayer.Play(AudioSrc.Damage);
             }
@@ -465,38 +489,38 @@
 
     private async Task Buff()
     {
-        this.card.Buff();
+        this.monster.Buff();
         await this.audioPlayer.Play(AudioSrc.Buff);
     }
 
     private async Task Debuff()
     {
-        this.card.Debuff();
+        this.monster.Debuff();
         await this.audioPlayer.Play(AudioSrc.Buff);
     }
 
     private async Task Attack()
     {
-        foreach (var a in this.card.Attacks)
+        foreach (var a in this.monster.Attacks)
         {
             a.IsSelected = false;
         }
 
-        var attack = this.card.Attacks[Random.Shared.Next(this.card.Attacks.Length - 1)];
+        var attack = this.monster.Attacks[Random.Shared.Next(this.monster.Attacks.Length - 1)];
 
         foreach (var i in Enumerable.Range(0, 3))
         {
-            foreach (var j in Enumerable.Range(0, this.card.Attacks.Length))
+            foreach (var j in Enumerable.Range(0, this.monster.Attacks.Length))
             {
                 if (j == 0)
                 {
-                    this.card.Attacks[^1].IsSelected = false;
+                    this.monster.Attacks[^1].IsSelected = false;
                 }
                 else
                 {
-                    this.card.Attacks[j - 1].IsSelected = false;
+                    this.monster.Attacks[j - 1].IsSelected = false;
                 }
-                this.card.Attacks[j].IsSelected = true;
+                this.monster.Attacks[j].IsSelected = true;
 
                 StateHasChanged();
                 await this.audioPlayer.Play(AudioSrc.ActionRoulette);
@@ -504,7 +528,7 @@
             }
         }
 
-        this.card.Attacks[^1].IsSelected = false;
+        this.monster.Attacks[^1].IsSelected = false;
 
         StateHasChanged();
         await Task.Delay(TimeSpan.FromSeconds(0.5));

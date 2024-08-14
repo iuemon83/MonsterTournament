@@ -1,13 +1,79 @@
 ﻿@page "/battle"
+@using MonsterTournament.Components
+@using MonsterTournament.Models
 
 
 <PageTitle>バトル - モンスタートーナメント</PageTitle>
 
 <MudGrid Justify="Justify.Center" Spacing="20">
     <MudItem xs="12" lg="5">
-        <MonsterTournament.Components.BattleCardDisplay />
+        <MudFileUpload T="IBrowserFile" FilesChanged="LoadCard1" Accept=@BattleCardLoader.FileExtension Class="mr-5">
+            <ActivatorContent>
+                <MudButton StartIcon="@Icons.Material.Filled.FileOpen" Variant="Variant.Filled" Size="Size.Small"
+                           Color="Color.Primary">開く</MudButton>
+            </ActivatorContent>
+        </MudFileUpload>
+        <MonsterTournament.Components.BattleCardDisplay @ref=battleCardDisplay1 />
     </MudItem>
     <MudItem xs="12" lg="5">
-        <MonsterTournament.Components.BattleCardDisplay />
+        <MonsterTournament.Components.BattleCardDisplay @ref=battleCardDisplay2 />
     </MudItem>
 </MudGrid>
+
+@code {
+    private BattleCardDisplay? battleCardDisplay1;
+    private BattleCardDisplay? battleCardDisplay2;
+
+    private BattleCard? card1;
+    private Dictionary<string, byte[]> imagesByName1 = [];
+
+    private BattleCard? card2;
+    private Dictionary<string, byte[]> imagesByName2 = [];
+
+    private async Task LoadCard1(IBrowserFile file)
+    {
+        var x = await LoadCard(file);
+        if (x == default)
+        {
+            return;
+        }
+
+        await (this.battleCardDisplay1?.LoadMyCard(x.Item1, x.Item2) ?? Task.CompletedTask);
+        this.battleCardDisplay2?.LoadEnemyCard(x.Item1, x.Item2);
+    }
+
+    private async Task LoadCard2(IBrowserFile file)
+    {
+        var x = await LoadCard(file);
+        if (x == default)
+        {
+            return;
+        }
+
+        await (this.battleCardDisplay2?.LoadMyCard(x.Item1, x.Item2) ?? Task.CompletedTask);
+        this.battleCardDisplay1?.LoadEnemyCard(x.Item1, x.Item2);
+    }
+
+    private async Task<(BattleCard, Dictionary<string, byte[]>)> LoadCard(IBrowserFile file)
+    {
+        if (file == null)
+        {
+            Console.WriteLine("キャンセル");
+            return default;
+        }
+
+        var buffer = new byte[file.Size];
+        await file.OpenReadStream(Config.MaxCardFileSizeInBytes).ReadAsync(buffer);
+
+        var (cardOrNull, imagesByName) = await new BattleCardLoader().Load(buffer);
+
+        if (cardOrNull == null)
+        {
+            //TODO : カードの読み込みに失敗 error handling
+            Console.WriteLine("カードの読み込みに失敗");
+            return default;
+        }
+
+        return (cardOrNull, imagesByName);
+    }
+}

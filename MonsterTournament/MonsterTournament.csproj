@@ -13,4 +13,12 @@
     <PackageReference Include="PublishSPAforGitHubPages.Build" Version="2.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\SimpleChoiceDialog.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Components\SimpleChoiceDialog.razor" />
+  </ItemGroup>
+
 </Project>

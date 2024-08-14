@@ -1,0 +1,46 @@
+﻿@typeparam T
+
+@using MonsterTournament.Models
+
+<MudDialog>
+    <DialogContent>
+        <MudPaper Width="300px">
+            <MudSelect T=T AnchorOrigin="Origin.BottomCenter" @bind-Value="this.selectedValue">
+                @foreach (var x in ChoiceItems)
+                {
+                    <MudSelectItem Value="@x">
+                        @ItemToString(x)
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" OnClick="Submit">OK</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public T[] ChoiceItems { get; set; } = [];
+
+    [Parameter]
+    public Func<T?, string> ItemToString { get; set; } = _ => "";
+
+    private T? selectedValue = default;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        this.selectedValue = this.ChoiceItems.FirstOrDefault();
+    }
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(this.selectedValue));
+
+    private void Cancel() => MudDialog.Cancel();
+}

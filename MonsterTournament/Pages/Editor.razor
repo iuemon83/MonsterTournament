@@ -22,7 +22,7 @@
 
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
     <MudTabPanel Text="モンスター">
-        <MonsterTournament.Components.EditorBattleCard @ref=editorBattleCard BattleCard="battleCard" @bind-ImageBytes="imageBytes" />
+        <MonsterTournament.Components.EditorMonster @ref=editorMonster Monster="battleCard.Main" @bind-ImageBytes="mainImage" />
     </MudTabPanel>
     <MudTabPanel Text="変身">
         <MonsterTournament.Components.EditorTransforms Transforms="transformWithImages" />
@@ -39,23 +39,25 @@
 
 @code {
     #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    MudForm form;
     FileDownloader fileDownload;
-    EditorBattleCard editorBattleCard;
+    EditorMonster editorMonster;
 #pragma warning restore CS8618
 
     bool success = true;
 
     private BattleCard battleCard = new BattleCard()
         {
-            Name = "",
-            Hp = 0,
-            Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
+            Main = new()
+            {
+                Name = "新規のモンスター",
+                Hp = 0,
+                Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
+            }
         };
 
-    private byte[] imageBytes = [];
+    private byte[] mainImage = [];
 
-    private List<TransformWithImage> transformWithImages = [];
+    private List<MonsterWithImage> transformWithImages = [];
 
     private async Task LoadCard(IBrowserFile file)
     {
@@ -79,22 +81,22 @@
         }
 
         battleCard = cardOrNull;
-        imageBytes = imagesByName.TryGetValue(battleCard.ImageFileName, out var bytes) ? bytes : [];
-        transformWithImages = cardOrNull.Transforms.Select(t => new TransformWithImage
+        mainImage = imagesByName.TryGetValue(battleCard.Main.ImageFileName, out var bytes) ? bytes : [];
+        transformWithImages = cardOrNull.Transforms.Select(t => new MonsterWithImage
             {
                 Transform = t,
                 ImageBytes = imagesByName.TryGetValue(t.ImageFileName, out var b) ? b : []
             })
             .ToList();
 
-        await this.editorBattleCard.UpdateImage(imageBytes);
+        await this.editorMonster.UpdateImage(mainImage);
     }
 
     private async Task Download()
     {
         var imagesByName = new Dictionary<string, byte[]>
         {
-            {battleCard.ImageFileName, imageBytes}
+            {battleCard.Main.ImageFileName, mainImage}
         };
 
         battleCard.Transforms.Clear();

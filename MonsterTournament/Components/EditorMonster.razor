@@ -5,8 +5,8 @@
 @inject IJSRuntime JS
 
 <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-    <MudTextField T="string" Class="mb-5" Label="名前" Required="true" @bind-Text=BattleCard.Name RequiredError="name is required!" />
-    <MudNumericField Class="mb-5" Label="HP" Variant="Variant.Text" Min="0" @bind-Value=BattleCard.Hp />
+    <MudTextField T="string" Class="mb-5" Label="名前" Required="true" @bind-Text=Monster.Name RequiredError="name is required!" />
+    <MudNumericField Class="mb-5" Label="HP" Variant="Variant.Text" Min="0" @bind-Value=Monster.Hp />
 
     <MudFileUpload T="IBrowserFile" @ref=mudFileUpload FilesChanged="UploadImage" Accept=".png, .jpg, .gif">
         <ActivatorContent>
@@ -33,13 +33,12 @@
             </MudPaper>
         }
 
-        <MudTextField T="string" Label="フレーバーテキスト" Variant="Variant.Text" @bind-Text="@BattleCard.FlavorText" Lines="10" />
+        <MudTextField T="string" Label="フレーバーテキスト" Variant="Variant.Text" @bind-Text="@Monster.FlavorText" Lines="10" />
     </div>
 
-
-    @foreach (var i in Enumerable.Range(0, BattleCard.Attacks.Length))
+    @foreach (var i in Enumerable.Range(0, Monster.Attacks.Length))
     {
-        <InputAttackField i="@i" battleCardAttack=BattleCard.Attacks[i] />
+        <InputAttackField i="@i" battleCardAttack=Monster.Attacks[i] />
     }
 </MudForm>
 
@@ -47,9 +46,9 @@
 
 @code {
     [Parameter]
-    public BattleCard BattleCard { get; set; } = new BattleCard()
+    public Monster Monster { get; set; } = new()
         {
-            Name = "",
+            Name = "新規のモンスター",
             Hp = 0,
             Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
         };
@@ -102,7 +101,7 @@
             return;
         }
 
-        BattleCard.ImageFileName = file.Name;
+        Monster.ImageFileName = file.Name;
 
         var buffer = new byte[file.Size];
         using var fileStream = file.OpenReadStream(Config.MaxImageFileSizeInBytes);
