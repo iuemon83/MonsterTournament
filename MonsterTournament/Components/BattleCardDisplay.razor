@@ -7,7 +7,7 @@
 
 <MudPaper Outlined="true" Class="mb-5">
     <MudContainer Class="d-flex justify-center align-center gap-4 ma-2">
-        <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Success" Size="Size.Large"
+        <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Info" Size="Size.Large"
                    @onclick="Attack">攻撃</MudButton>
 
         <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" OverrideStyles="false">
@@ -60,7 +60,7 @@
 <MudPaper Outlined="true">
     <MudContainer>
         <div class="d-flex align-center justify-start">
-            <MudText Class="overflow-hidden" Typo="Typo.h4">@monster.Def.Name</MudText>
+            <MudText Class="overflow-hidden" Typo="Typo.h5">@monster.Def.Name</MudText>
         </div>
         <div class="d-flex align-center justify-start gap-1">
             <MudText Typo="Typo.body1" Class="mr-5">HP: </MudText>
@@ -85,12 +85,12 @@
         </MudContainer>
 
 
-        <MudTabs PanelClass="pa-2">
+        <MudTabs PanelClass="pt-2">
             <MudTabPanel Text="@actionName">
                 @foreach (var attack in this.monster.Attacks)
                 {
                     <MudPaper Outlined="true" Class="@($"{(attack.IsSelected ? "mud-primary" : "")} pa-2 mb-2")">
-                        <MudGrid Justify="Justify.FlexStart">
+                        <MudGrid Justify="Justify.FlexStart" Class="align-center">
                             <MudItem sm="1">
                                 <AttackIcon AttackType="@attack.Type" />
                             </MudItem>
@@ -98,10 +98,14 @@
                             @if (this.monster.SpecialAttackAttached)
                             {
                                 <MudItem sm="4">
-                                    <MudText Class="overflow-hidden" Typo="Typo.body1">@attack.SpecialName</MudText>
+                                    <MudText Class="overflow-hidden"
+                                             Style=@($"height: 1.6rem;font-size: clamp(10px, {10f / Math.Max(1, attack.SpecialName.Length)}rem, 20px)")
+                                             Align="Align.Center" Typo="Typo.body1">@attack.SpecialName</MudText>
                                 </MudItem>
-                                <MudItem sm="4">
-                                    <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.SpecialAttackDescription</MudText>
+                                <MudItem sm="7">
+                                    <MudText Class="overflow-hidden"
+                                             Style=@($"height: 1.6rem;font-size: clamp(10px, {8f / Math.Max(1, attack.SpecialAttackDescription.Length)}rem, 15px)")
+                                             Align="Align.Center">@attack.SpecialAttackDescription</MudText>
                                 </MudItem>
                             }
                             else
@@ -110,23 +114,28 @@
                                || attack.Def.Type == BattleCardAttackType.Special)
                                 {
                                     <MudItem sm="8">
-                                        <MudText Class="overflow-hidden" Align="Align.Center" Typo="Typo.body1">@attack.Description</MudText>
+                                        <MudText Class="overflow-hidden"
+                                                 Style=@($"height: 1.6rem;font-size: clamp(10px, {15f / Math.Max(1, attack.Description.Length)}rem, 20px)")
+                                                 Align="Align.Center" Typo="Typo.body1">@attack.Description</MudText>
                                     </MudItem>
                                 }
                                 else
                                 {
                                     <MudItem sm="4">
-                                        <MudText Class="overflow-hidden" Typo="Typo.body1">@attack.Name</MudText>
+                                        <MudText Class="overflow-hidden"
+                                                 Style=@($"height: 1.6rem;font-size: clamp(10px, {10f / Math.Max(1, attack.Name.Length)}rem, 20px)")>@attack.Name</MudText>
                                     </MudItem>
                                     <MudItem sm="4">
-                                        <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.Description</MudText>
+                                        <MudText Class="overflow-hidden"
+                                                 Style=@($"height: 1.6rem;font-size: clamp(10px, {8f / Math.Max(1, attack.Description.Length)}rem, 15px)")>@attack.Description</MudText>
                                     </MudItem>
                                 }
 
                                 <MudItem sm="3">
                                     <div class="d-flex gap-2">
                                         <MudDivider Vertical="true" FlexItem="true" />
-                                        <MudText Class="overflow-hidden" Typo="Typo.body2">@attack.StatusDescription</MudText>
+                                        <MudText Class="overflow-hidden"
+                                                 Style=@($"height: 1.6rem;font-size: clamp(10px, {7f / Math.Max(1, attack.StatusDescription.Length)}rem, 15px)")>@attack.StatusDescription</MudText>
                                     </div>
                                 </MudItem>
                             }
@@ -342,20 +351,34 @@
 
     private readonly string cardImageElementId = Guid.NewGuid().ToString();
 
-    private IReadOnlyList<Monster> Transforms => (this.My == null ? [] : new[] { this.My.Main })
-        .Concat(this.My?.Transforms ?? [])
-        .Concat((this.Enemy == null ? [] : new[] { this.Enemy.Main }))
-        .Concat(this.Enemy?.Transforms ?? [])
+    public record TransformSelectItem(Monster Monster, BattleCard owner)
+    {
+        public string DisplayString => $"{Monster.Name}({owner.Main.Name})";
+    }
+    public record BattleStateSelectItem(BattleState BattleState, BattleCard owner)
+    {
+        public string DisplayString => $"{BattleState.Name}({owner.Main.Name})";
+    }
+    public record SpecialAttackSelectItem(SpecialAttack SpecialAttack, BattleCard owner)
+    {
+        public string DisplayString => $"{SpecialAttack.Name}({owner.Main.Name})";
+    }
+
+    private IReadOnlyList<TransformSelectItem> Transforms =>
+        (this.My == null ? [] : new[] { new TransformSelectItem(this.My.Main, this.My) })
+        .Concat(this.My?.Transforms?.Select(t => new TransformSelectItem(t, this.My))?.ToArray() ?? [])
+        .Concat((this.Enemy == null ? [] : new[] { new TransformSelectItem(this.Enemy.Main, this.Enemy) }))
+        .Concat(this.Enemy?.Transforms?.Select(t => new TransformSelectItem(t, this.Enemy))?.ToArray() ?? [])
         .ToArray();
 
-    private IReadOnlyList<BattleState?> BattleStates => new[] { (BattleState?)null }
-        .Concat(this.My?.BattleStates ?? [])
-        .Concat(this.Enemy?.BattleStates ?? [])
+    private IReadOnlyList<BattleStateSelectItem?> BattleStates => new[] { (BattleStateSelectItem?)null }
+        .Concat(this.My?.BattleStates?.Select(t => new BattleStateSelectItem(t, this.My))?.ToArray() ?? [])
+        .Concat(this.Enemy?.BattleStates?.Select(t => new BattleStateSelectItem(t, this.Enemy))?.ToArray() ?? [])
         .ToArray();
 
-    private IReadOnlyList<SpecialAttack?> Specials => new[] { (SpecialAttack?)null }
-        .Concat(this.My?.SpecialAttacks ?? [])
-        .Concat(this.Enemy?.SpecialAttacks ?? [])
+    private IReadOnlyList<SpecialAttackSelectItem?> Specials => new[] { (SpecialAttackSelectItem?)null }
+        .Concat(this.My?.SpecialAttacks?.Select(t => new SpecialAttackSelectItem(t, this.My))?.ToArray() ?? [])
+        .Concat(this.Enemy?.SpecialAttacks?.Select(t => new SpecialAttackSelectItem(t, this.Enemy))?.ToArray() ?? [])
         .ToArray();
 
     public async Task LoadMyCard(BattleCard card, Dictionary<string, byte[]> imagesByName)
@@ -396,68 +419,68 @@
 
     private async Task ShowStateDialog()
     {
-        var parameters = new DialogParameters<SimpleChoiceDialog<BattleState>>(){
+        var parameters = new DialogParameters<SimpleChoiceDialog<BattleStateSelectItem>>(){
             { x => x.ChoiceItems, BattleStates },
-            { x => x.ItemToString, new Func<BattleState?, string>(x => x == null ? "なし" : x.Name) }
+            { x => x.ItemToString, new Func<BattleStateSelectItem?, string>(x => x == null ? "なし" : x.DisplayString) }
         };
 
-        var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<BattleState>>("状態", parameters);
+        var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<BattleStateSelectItem>>("状態", parameters);
         var result = await dialog.Result;
 
         if (!(result?.Canceled ?? true))
         {
-            var selectedValue = result.Data as BattleState;
+            var selectedValue = result.Data as BattleStateSelectItem;
             if (selectedValue == null)
             {
                 this.monster.DettacheBattleState();
             }
             else
             {
-                this.monster.AttacheBattleState(selectedValue);
+                this.monster.AttacheBattleState(selectedValue.BattleState);
             }
         }
     }
 
     private async Task ShowSpecialDialog()
     {
-        var parameters = new DialogParameters<SimpleChoiceDialog<SpecialAttack>>(){
+        var parameters = new DialogParameters<SimpleChoiceDialog<SpecialAttackSelectItem>>(){
             { x => x.ChoiceItems, Specials },
-            { x => x.ItemToString, new Func<SpecialAttack, string>(x => x == null ? "なし" : x.Name) }
+            { x => x.ItemToString, new Func<SpecialAttackSelectItem, string>(x => x == null ? "なし" : x.DisplayString) }
         };
 
-        var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<SpecialAttack>>("必殺", parameters);
+        var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<SpecialAttackSelectItem>>("必殺", parameters);
         var result = await dialog.Result;
 
         if (!(result?.Canceled ?? true))
         {
-            var selectedValue = result.Data as SpecialAttack;
+            var selectedValue = result.Data as SpecialAttackSelectItem;
             if (selectedValue == null)
             {
                 this.monster.DettacheSpecial();
             }
             else
             {
-                this.monster.AttacheSpecial(selectedValue);
+                this.monster.AttacheSpecial(selectedValue.SpecialAttack);
             }
         }
     }
 
     private async Task ShowTransformDialog()
     {
-        var parameters = new DialogParameters<SimpleChoiceDialog<Monster>>(){
+        var parameters = new DialogParameters<SimpleChoiceDialog<TransformSelectItem>>(){
             { x => x.ChoiceItems, Transforms },
-            { x => x.ItemToString, new Func<Monster, string>(x => x == null ? "なし" : x.Name) }
+            { x => x.ItemToString, new Func<TransformSelectItem, string>(x => x == null ? "なし" : x.DisplayString) }
         };
 
-        var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<Monster>>("変身", parameters);
+        var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<TransformSelectItem>>("変身", parameters);
         var result = await dialog.Result;
 
         if (!(result?.Canceled ?? true))
         {
-            var selectedValue = result.Data as Monster;
+            var selectedValue = result.Data as TransformSelectItem;
             if (selectedValue != null)
             {
-                await this.Transform(selectedValue);
+                await this.Transform(selectedValue.Monster);
             }
         }
     }
