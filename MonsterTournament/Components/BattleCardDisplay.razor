@@ -364,7 +364,7 @@
         var buffer = new byte[file.Size];
         await file.OpenReadStream(Config.MaxCardFileSizeInBytes).ReadAsync(buffer);
 
-        var (cardOrNull, imageBytes) = await new BattleCardLoader().Load(buffer);
+        var (cardOrNull, imagesByName) = await new BattleCardLoader().Load(buffer);
 
         if (cardOrNull == null)
         {
@@ -375,7 +375,11 @@
 
         card = card == null ? new(cardOrNull) : new(cardOrNull, card);
 
-        await this.fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
+        var imageBytes = imagesByName.TryGetValue(card.Def.ImageFileName, out var bytes) ? bytes : [];
+        if (imageBytes.Length != 0)
+        {
+            await this.fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
+        }
     }
 
     private async Task LoadBattleState(IBrowserFile file)

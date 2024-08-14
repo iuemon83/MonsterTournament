@@ -2,75 +2,59 @@
 @using MonsterTournament.Models
 @using System.IO.Compression
 @using System.Text.Json
-@inject IJSRuntime JS
 
-<div class="d-flex justify-start align-center gap-1">
-    <MudFileUpload T="IBrowserFile" FilesChanged="LoadCard" Accept=@SpecialAttackLoader.FileExtension Class="mr-5">
-        <ActivatorContent>
-            <MudButton StartIcon="@Icons.Material.Filled.FileOpen" Variant="Variant.Filled"
-                       Color="Color.Primary">開く</MudButton>
-        </ActivatorContent>
-    </MudFileUpload>
-    <MudButton StartIcon="@Icons.Material.Filled.Download" Variant="Variant.Filled" Color="Color.Primary"
-               Disabled="@(!success)" @onclick=Download>ダウンロード</MudButton>
+<div class="d-flex justify-start align-center gap-1 mb-5">
+    <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary"
+               @onclick=AddNew>追加</MudButton>
 </div>
-<MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-    <MudTextField T="string" Class="mb-5" Label="名前" Required="true" @bind-Text=specialAttack.Name RequiredError="name is required!" />
 
-    @foreach (var i in Enumerable.Range(0, specialAttack.Attacks.Length))
-    {
-        <InputAttackField i="@i" battleCardAttack=specialAttack.Attacks[i] />
-    }
-</MudForm>
-<FileDownloader @ref=fileDownload />
+<MudGrid Justify="Justify.Center" Spacing="10">
+    <MudItem xs="12" lg="3">
+        <MudPaper MinWidth="300px">
+            <MudList T="SpecialAttack" @bind-SelectedValue=selectedSpecialAttack>
+                @foreach (var state in SpecialAttacks)
+                {
+                    <MudListItem Text="@state.Name" IconColor="Color.Secondary" Icon="fas fa-star" Value="@state" />
+                }
+            </MudList>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" lg="9">
+        @if (selectedSpecialAttack != null)
+        {
+            <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudTextField T="string" Class="mb-5" Label="名前" Required="true" @bind-Text=selectedSpecialAttack.Name RequiredError="name is required!" />
+
+                @foreach (var i in Enumerable.Range(0, selectedSpecialAttack.Attacks.Length))
+                {
+                    <InputAttackField i="@i" battleCardAttack=selectedSpecialAttack.Attacks[i] />
+                }
+            </MudForm>
+        }
+    </MudItem>
+</MudGrid>
 
 @code {
+    [Parameter]
+    public List<SpecialAttack> SpecialAttacks { get; set; } = [];
+
+    public SpecialAttack? selectedSpecialAttack;
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     MudForm form;
-    FileDownloader fileDownload;
 #pragma warning restore CS8618
 
     bool success;
     string[] errors = { };
 
-    private readonly string cardImageElementId = Guid.NewGuid().ToString();
-
-    private SpecialAttack specialAttack = new()
-        {
-            Name = "",
-            Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
-        };
-
-    private async Task LoadCard(IBrowserFile file)
+    private void AddNew()
     {
-        if (file == null)
-        {
-            Console.WriteLine("キャンセル");
-            return;
-        }
-
-        var buffer = new byte[file.Size];
-        using var fileStream = file.OpenReadStream();
-        await fileStream.ReadAsync(buffer);
-
-        var specialAttackOrNull = await new SpecialAttackLoader().Load(buffer);
-
-        if (specialAttackOrNull == null)
-        {
-            //TODO : カードの読み込みに失敗 error handling
-            Console.WriteLine("カードの読み込みに失敗");
-            return;
-        }
-
-        specialAttack = specialAttackOrNull;
-
-        StateHasChanged();
-        await form.Validate();
-    }
-
-    private async Task Download()
-    {
-        var file = await new SpecialAttackLoader().Save(specialAttack);
-        await fileDownload.DownloadFileFromStream(file.FileName, new MemoryStream(file.Bytes));
+        selectedSpecialAttack = new()
+            {
+                Name = "新規の必殺技",
+                Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
+            };
+        SpecialAttacks.Add(selectedSpecialAttack);
     }
 }

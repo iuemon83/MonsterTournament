@@ -1,0 +1,52 @@
+﻿@using System.Text.RegularExpressions
+@using MonsterTournament.Models
+@using System.IO.Compression
+@using System.Text.Json
+
+<div class="d-flex justify-start align-center gap-1 mb-5">
+    <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary"
+               @onclick=AddNew>追加</MudButton>
+</div>
+
+<MudGrid Justify="Justify.Center" Spacing="10">
+    <MudItem xs="12" lg="3">
+        <MudPaper MinWidth="300px">
+            <MudList T="TransformWithImage" @bind-SelectedValue=selectedTransform>
+                @foreach (var state in Transforms)
+                {
+                    <MudListItem Text="@state.Transform.Name" IconColor="Color.Secondary" Icon="fas fa-sync-alt" Value="@state" />
+                }
+            </MudList>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" lg="9">
+        @if (selectedTransform != null)
+        {
+            <EditorBattleCard BattleCard="selectedTransform.Transform" @bind-ImageBytes="selectedTransform.ImageBytes" />
+        }
+    </MudItem>
+</MudGrid>
+
+@code {
+    public class TransformWithImage
+    {
+        public BattleCard Transform { get; set; } = new()
+            {
+                Name = "新規の変身",
+                Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
+            };
+        public byte[] ImageBytes { get; set; } = [];
+    }
+
+    [Parameter]
+    public List<TransformWithImage> Transforms { get; set; } = new();
+
+    public TransformWithImage? selectedTransform;
+
+    private void AddNew()
+    {
+        selectedTransform = new();
+        Transforms.Add(selectedTransform);
+    }
+}

@@ -2,24 +2,109 @@
 @using System.Text.RegularExpressions
 @using System.IO.Compression
 @using System.Text.Json
+@using MonsterTournament.Components
+@using MonsterTournament.Models
+@using static MonsterTournament.Components.EditorTransforms
 @inject IJSRuntime JS
 
 <PageTitle>エディター - モンスタートーナメント</PageTitle>
 
+<div class="d-flex justify-start align-center gap-1 mb-5">
+    <MudFileUpload T="IBrowserFile" FilesChanged="LoadCard" Accept=@BattleCardLoader.FileExtension Class="mr-5">
+        <ActivatorContent>
+            <MudButton StartIcon="@Icons.Material.Filled.FileOpen" Variant="Variant.Filled"
+                       Color="Color.Primary">開く</MudButton>
+        </ActivatorContent>
+    </MudFileUpload>
+    <MudButton StartIcon="@Icons.Material.Filled.Download" Variant="Variant.Filled" Color="Color.Primary"
+               Disabled="@(!success)" @onclick=Download>ダウンロード</MudButton>
+</div>
+
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
     <MudTabPanel Text="モンスター">
-        <MudContainer>
-            <MonsterTournament.Components.EditorBattleCard />
-        </MudContainer>
+        <MonsterTournament.Components.EditorBattleCard @ref=editorBattleCard BattleCard="battleCard" @bind-ImageBytes="imageBytes" />
+    </MudTabPanel>
+    <MudTabPanel Text="変身">
+        <MonsterTournament.Components.EditorTransforms Transforms="transformWithImages" />
     </MudTabPanel>
     <MudTabPanel Text="必殺技">
-        <MudContainer>
-            <MonsterTournament.Components.EditorSpecialAttack />
-        </MudContainer>
+        <MonsterTournament.Components.EditorSpecialAttack SpecialAttacks="battleCard.SpecialAttacks" />
     </MudTabPanel>
     <MudTabPanel Text="状態異常">
-        <MudContainer>
-            <MonsterTournament.Components.EditorBattleState />
-        </MudContainer>
+        <MonsterTournament.Components.EditorBattleState BattleStates="battleCard.BattleStates" />
     </MudTabPanel>
 </MudTabs>
+
+<FileDownloader @ref=fileDownload />
+
+@code {
+    #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    MudForm form;
+    FileDownloader fileDownload;
+    EditorBattleCard editorBattleCard;
+#pragma warning restore CS8618
+
+    bool success = true;
+
+    private BattleCard battleCard = new BattleCard()
+        {
+            Name = "",
+            Hp = 0,
+            Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
+        };
+
+    private byte[] imageBytes = [];
+
+    private List<TransformWithImage> transformWithImages = [];
+
+    private async Task LoadCard(IBrowserFile file)
+    {
+        if (file == null)
+        {
+            Console.WriteLine("キャンセル");
+            return;
+        }
+
+        var buffer = new byte[file.Size];
+        using var fileStream = file.OpenReadStream(Config.MaxCardFileSizeInBytes);
+        await fileStream.ReadAsync(buffer);
+
+        var (cardOrNull, imagesByName) = await new BattleCardLoader().Load(buffer);
+
+        if (cardOrNull == null)
+        {
+            //TODO : カードの読み込みに失敗 error handling
+            Console.WriteLine("カードの読み込みに失敗");
+            return;
+        }
+
+        battleCard = cardOrNull;
+        imageBytes = imagesByName.TryGetValue(battleCard.ImageFileName, out var bytes) ? bytes : [];
+
+        foreach (var t in cardOrNull.Transforms)
+        {
+            transformWithImages.Add(new TransformWithImage
+                {
+                    Transform = t,
+                    ImageBytes = imagesByName.TryGetValue(t.ImageFileName, out var b) ? b : []
+                });
+        }
+        await this.editorBattleCard.UpdateImage(imageBytes);
+    }
+
+    private async Task Download()
+    {
+        var imagesByName = new Dictionary<string, byte[]>
+        {
+            {battleCard.ImageFileName, imageBytes}
+        };
+        foreach (var t in transformWithImages)
+        {
+            battleCard.Transforms.Add(t.Transform);
+            imagesByName[t.Transform.ImageFileName] = t.ImageBytes;
+        }
+
+        var file = await new BattleCardLoader().Save(battleCard, imagesByName);
+        await fileDownload.DownloadFileFromStream(file.FileName, new MemoryStream(file.Bytes));
+    }
+}

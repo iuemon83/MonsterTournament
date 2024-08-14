@@ -2,75 +2,60 @@
 @using MonsterTournament.Models
 @using System.IO.Compression
 @using System.Text.Json
-@inject IJSRuntime JS
 
-<div class="d-flex justify-start align-center gap-1">
-    <MudFileUpload T="IBrowserFile" FilesChanged="LoadCard" Accept=@BattleStateLoader.FileExtension Class="mr-5">
-        <ActivatorContent>
-            <MudButton StartIcon="@Icons.Material.Filled.FileOpen" Variant="Variant.Filled"
-                       Color="Color.Primary">開く</MudButton>
-        </ActivatorContent>
-    </MudFileUpload>
-    <MudButton StartIcon="@Icons.Material.Filled.Download" Variant="Variant.Filled" Color="Color.Primary"
-               Disabled="@(!success)" @onclick=Download>ダウンロード</MudButton>
+<div class="d-flex justify-start align-center gap-1 mb-5">
+    <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary"
+               @onclick=AddNew>追加</MudButton>
 </div>
-<MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-    <MudTextField T="string" Class="mb-5" Label="名前" Required="true" @bind-Text=battleState.Name RequiredError="name is required!" />
 
-    @foreach (var i in Enumerable.Range(0, battleState.Attacks.Length))
-    {
-        <InputAttackField i="@i" battleCardAttack=battleState.Attacks[i] requireName="false" />
-    }
-</MudForm>
-<FileDownloader @ref=fileDownload />
+<MudGrid Justify="Justify.Center" Spacing="10">
+    <MudItem xs="12" lg="3">
+        <MudPaper MinWidth="300px">
+            <MudList T="BattleState" @bind-SelectedValue=selectedBattleState>
+                @foreach (var state in BattleStates)
+                {
+                    <MudListItem Text="@state.Name" IconColor="Color.Warning" Icon="fas fa-water" Value="@state" />
+                }
+            </MudList>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" lg="9">
+        @if (selectedBattleState != null)
+        {
+            <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudTextField T="string" Class="mb-5" Label="名前" Required="true"
+                              @bind-Text=selectedBattleState.Name RequiredError="name is required!" />
+
+                @foreach (var i in Enumerable.Range(0, selectedBattleState.Attacks.Length))
+                {
+                    <InputAttackField i="@i" battleCardAttack=selectedBattleState.Attacks[i] requireName="false" />
+                }
+            </MudForm>
+        }
+    </MudItem>
+</MudGrid>
 
 @code {
+    [Parameter]
+    public List<BattleState> BattleStates { get; set; } = [];
+
+    public BattleState? selectedBattleState;
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     MudForm form;
-    FileDownloader fileDownload;
 #pragma warning restore CS8618
 
     bool success;
     string[] errors = { };
 
-    private readonly string cardImageElementId = Guid.NewGuid().ToString();
-
-    private BattleState battleState = new()
-        {
-            Name = "",
-            Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
-        };
-
-    private async Task LoadCard(IBrowserFile file)
+    private void AddNew()
     {
-        if (file == null)
-        {
-            Console.WriteLine("キャンセル");
-            return;
-        }
-
-        var buffer = new byte[file.Size];
-        using var fileStream = file.OpenReadStream();
-        await fileStream.ReadAsync(buffer);
-
-        var battleStateOrNull = await new BattleStateLoader().Load(buffer);
-
-        if (battleStateOrNull == null)
-        {
-            //TODO : カードの読み込みに失敗 error handling
-            Console.WriteLine("カードの読み込みに失敗");
-            return;
-        }
-
-        battleState = battleStateOrNull;
-
-        StateHasChanged();
-        await form.Validate();
-    }
-
-    private async Task Download()
-    {
-        var file = await new BattleStateLoader().Save(battleState);
-        await fileDownload.DownloadFileFromStream(file.FileName, new MemoryStream(file.Bytes));
+        selectedBattleState = new BattleState
+            {
+                Name = "新規の状態異常",
+                Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
+            };
+        BattleStates.Add(selectedBattleState);
     }
 }

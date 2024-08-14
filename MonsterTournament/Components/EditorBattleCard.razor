@@ -4,19 +4,9 @@
 @using System.Text.Json
 @inject IJSRuntime JS
 
-<div class="d-flex justify-start align-center gap-1">
-    <MudFileUpload T="IBrowserFile" FilesChanged="LoadCard" Accept=@BattleCardLoader.FileExtension Class="mr-5">
-        <ActivatorContent>
-            <MudButton StartIcon="@Icons.Material.Filled.FileOpen" Variant="Variant.Filled"
-                       Color="Color.Primary">開く</MudButton>
-        </ActivatorContent>
-    </MudFileUpload>
-    <MudButton StartIcon="@Icons.Material.Filled.Download" Variant="Variant.Filled" Color="Color.Primary"
-               Disabled="@(!success)" @onclick=Download>ダウンロード</MudButton>
-</div>
 <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-    <MudTextField T="string" Class="mb-5" Label="名前" Required="true" @bind-Text=battleCard.Name RequiredError="name is required!" />
-    <MudNumericField Class="mb-5" Label="HP" Variant="Variant.Text" Min="0" @bind-Value=battleCard.Hp />
+    <MudTextField T="string" Class="mb-5" Label="名前" Required="true" @bind-Text=BattleCard.Name RequiredError="name is required!" />
+    <MudNumericField Class="mb-5" Label="HP" Variant="Variant.Text" Min="0" @bind-Value=BattleCard.Hp />
 
     <MudFileUpload T="IBrowserFile" @ref=mudFileUpload FilesChanged="UploadImage" Accept=".png, .jpg, .gif">
         <ActivatorContent>
@@ -29,7 +19,7 @@
     </MudFileUpload>
 
     <div Class="d-flex justify-center mb-5 gap-5">
-        @if (imageBytes.Length > 0)
+        @if (ImageBytes.Length > 0)
         {
             <MudImage id=@cardImageElementId Height=@Config.ImageSize.Y Width=@Config.ImageSize.X
                       ObjectPosition="ObjectPosition.Center" />
@@ -43,25 +33,37 @@
             </MudPaper>
         }
 
-        <MudTextField T="string" Label="フレーバーテキスト" Variant="Variant.Text" @bind-Text="@battleCard.FlavorText" Lines="10" />
+        <MudTextField T="string" Label="フレーバーテキスト" Variant="Variant.Text" @bind-Text="@BattleCard.FlavorText" Lines="10" />
     </div>
 
 
-    @foreach (var i in Enumerable.Range(0, battleCard.Attacks.Length))
+    @foreach (var i in Enumerable.Range(0, BattleCard.Attacks.Length))
     {
-        <InputAttackField i="@i" battleCardAttack=battleCard.Attacks[i] />
+        <InputAttackField i="@i" battleCardAttack=BattleCard.Attacks[i] />
     }
 </MudForm>
 
 <FileUploader @ref=fileUpload />
-<FileDownloader @ref=fileDownload />
 
 @code {
+    [Parameter]
+    public BattleCard BattleCard { get; set; } = new BattleCard()
+        {
+            Name = "",
+            Hp = 0,
+            Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
+        };
+
+    [Parameter]
+    public byte[] ImageBytes { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<byte[]> ImageBytesChanged { get; set; }
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     MudForm form;
     MudFileUpload<IBrowserFile> mudFileUpload;
     FileUploader fileUpload;
-    FileDownloader fileDownload;
 #pragma warning restore CS8618
 
     bool success;
@@ -69,13 +71,26 @@
 
     private readonly string cardImageElementId = Guid.NewGuid().ToString();
 
-    private BattleCard battleCard = new BattleCard()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender && this.ImageBytes.Length != 0)
         {
-            Name = "",
-            Hp = 0,
-            Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
-        };
-    private byte[] imageBytes = [];
+            await this.UpdateImage(this.ImageBytes);
+        }
+    }
+
+    public async Task UpdateImage(byte[] imageBytes)
+    {
+        ImageBytes = imageBytes;
+        await ImageBytesChanged.InvokeAsync(imageBytes);
+
+        await this.mudFileUpload.ClearAsync();
+
+        StateHasChanged();
+        await fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
+    }
 
     private async Task UploadImage(IBrowserFile? file)
     {
@@ -87,53 +102,11 @@
             return;
         }
 
-        battleCard.ImageFileName = file.Name;
+        BattleCard.ImageFileName = file.Name;
 
         var buffer = new byte[file.Size];
         using var fileStream = file.OpenReadStream(Config.MaxImageFileSizeInBytes);
         await fileStream.ReadAsync(buffer);
-        imageBytes = buffer;
-
-        StateHasChanged();
-
-        await fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
-    }
-
-    private async Task LoadCard(IBrowserFile file)
-    {
-        if (file == null)
-        {
-            Console.WriteLine("キャンセル");
-            return;
-        }
-
-        var buffer = new byte[file.Size];
-        using var fileStream = file.OpenReadStream();
-        await fileStream.ReadAsync(buffer);
-
-        var (cardOrNull, iBytes) = await new BattleCardLoader().Load(buffer);
-
-        if (cardOrNull == null)
-        {
-            //TODO : カードの読み込みに失敗 error handling
-            Console.WriteLine("カードの読み込みに失敗");
-            return;
-        }
-
-        battleCard = cardOrNull;
-        imageBytes = iBytes;
-        await this.mudFileUpload.ClearAsync();
-
-        StateHasChanged();
-        await fileUpload.SetImage(cardImageElementId, new MemoryStream(iBytes));
-
-        StateHasChanged();
-        await form.Validate();
-    }
-
-    private async Task Download()
-    {
-        var file = await new BattleCardLoader().Save(battleCard, imageBytes);
-        await fileDownload.DownloadFileFromStream(file.FileName, new MemoryStream(file.Bytes));
+        await this.UpdateImage(buffer);
     }
 }

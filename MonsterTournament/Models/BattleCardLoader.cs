@@ -9,7 +9,7 @@ namespace MonsterTournament.Models
         public static readonly string FileExtension = ".mtbc";
         public static readonly string JsonFileName = "card.json";
 
-        public async Task<MonsterTounamentFile> Save(BattleCard model, byte[] imageBytes)
+        public async Task<MonsterTounamentFile> Save(BattleCard model, Dictionary<string, byte[]> imagesByName)
         {
             var fileStream = new MemoryStream();
 
@@ -22,18 +22,21 @@ namespace MonsterTournament.Models
                     await JsonSerializer.SerializeAsync(cardStream, model);
                 }
 
-                if (imageBytes.Length != 0)
+                foreach (var (name, imageBytes) in imagesByName)
                 {
-                    var entry = zip.CreateEntry(model.ImageFileName);
-                    using var stream = entry.Open();
-                    await stream.WriteAsync(imageBytes);
+                    if (imageBytes.Length != 0)
+                    {
+                        var entry = zip.CreateEntry(name);
+                        using var stream = entry.Open();
+                        await stream.WriteAsync(imageBytes);
+                    }
                 }
             }
 
             return new($"{model.Name}{FileExtension}", fileStream.ToArray());
         }
 
-        public async Task<(BattleCard?, byte[] image)> Load(byte[] bytes)
+        public async Task<(BattleCard?, Dictionary<string, byte[]> Images)> Load(byte[] bytes)
         {
             using var archive = new ZipArchive(new MemoryStream(bytes));
 
@@ -62,21 +65,36 @@ namespace MonsterTournament.Models
                 return default;
             }
 
-            var imageMs = new MemoryStream();
+            var imagesByName = new Dictionary<string, byte[]>();
             foreach (var entry in archive.Entries)
             {
                 if (entry.Name == cardOrNull.ImageFileName)
                 {
                     Console.WriteLine("image found");
 
+                    var imageMs = new MemoryStream();
                     using var stream = entry.Open();
                     await stream.CopyToAsync(imageMs);
+                    imagesByName.Add(cardOrNull.ImageFileName, imageMs.ToArray());
+                }
+                else
+                {
+                    foreach (var t in cardOrNull.Transforms)
+                    {
+                        if (entry.Name == t.ImageFileName)
+                        {
+                            Console.WriteLine("transform image found");
 
-                    break;
+                            var imageMs = new MemoryStream();
+                            using var stream = entry.Open();
+                            await stream.CopyToAsync(imageMs);
+                            imagesByName.Add(t.ImageFileName, imageMs.ToArray());
+                        }
+                    }
                 }
             }
 
-            return (cardOrNull, imageMs.ToArray());
+            return (cardOrNull, imagesByName);
         }
     }
 }
