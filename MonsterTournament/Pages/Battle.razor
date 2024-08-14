@@ -16,6 +16,12 @@
         <MonsterTournament.Components.BattleCardDisplay @ref=battleCardDisplay1 />
     </MudItem>
     <MudItem xs="12" lg="5">
+        <MudFileUpload T="IBrowserFile" FilesChanged="LoadCard2" Accept=@BattleCardLoader.FileExtension Class="mr-5">
+            <ActivatorContent>
+                <MudButton StartIcon="@Icons.Material.Filled.FileOpen" Variant="Variant.Filled" Size="Size.Small"
+                           Color="Color.Primary">開く</MudButton>
+            </ActivatorContent>
+        </MudFileUpload>
         <MonsterTournament.Components.BattleCardDisplay @ref=battleCardDisplay2 />
     </MudItem>
 </MudGrid>
