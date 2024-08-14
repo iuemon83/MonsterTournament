@@ -351,17 +351,17 @@
 
     private readonly string cardImageElementId = Guid.NewGuid().ToString();
 
-    public record TransformSelectItem(Monster Monster, BattleCard owner)
+    public record TransformSelectItem(Monster? Monster, BattleCard? owner)
     {
-        public string DisplayString => $"{Monster.Name}({owner.Main.Name})";
+        public string DisplayString => Monster == null ? "なし" : $"{Monster.Name}({owner?.Main.Name})";
     }
-    public record BattleStateSelectItem(BattleState BattleState, BattleCard owner)
+    public record BattleStateSelectItem(BattleState? BattleState, BattleCard? owner)
     {
-        public string DisplayString => $"{BattleState.Name}({owner.Main.Name})";
+        public string DisplayString => BattleState == null ? "なし" : $"{BattleState.Name}({owner?.Main.Name})";
     }
-    public record SpecialAttackSelectItem(SpecialAttack SpecialAttack, BattleCard owner)
+    public record SpecialAttackSelectItem(SpecialAttack? SpecialAttack, BattleCard? owner)
     {
-        public string DisplayString => $"{SpecialAttack.Name}({owner.Main.Name})";
+        public string DisplayString => SpecialAttack == null ? "なし" : $"{SpecialAttack.Name}({owner?.Main.Name})";
     }
 
     private IReadOnlyList<TransformSelectItem> Transforms =>
@@ -371,12 +371,12 @@
         .Concat(this.Enemy?.Transforms?.Select(t => new TransformSelectItem(t, this.Enemy))?.ToArray() ?? [])
         .ToArray();
 
-    private IReadOnlyList<BattleStateSelectItem?> BattleStates => new[] { (BattleStateSelectItem?)null }
+    private IReadOnlyList<BattleStateSelectItem?> BattleStates => new[] { new BattleStateSelectItem(null, null) }
         .Concat(this.My?.BattleStates?.Select(t => new BattleStateSelectItem(t, this.My))?.ToArray() ?? [])
         .Concat(this.Enemy?.BattleStates?.Select(t => new BattleStateSelectItem(t, this.Enemy))?.ToArray() ?? [])
         .ToArray();
 
-    private IReadOnlyList<SpecialAttackSelectItem?> Specials => new[] { (SpecialAttackSelectItem?)null }
+    private IReadOnlyList<SpecialAttackSelectItem?> Specials => new[] { new SpecialAttackSelectItem(null, null) }
         .Concat(this.My?.SpecialAttacks?.Select(t => new SpecialAttackSelectItem(t, this.My))?.ToArray() ?? [])
         .Concat(this.Enemy?.SpecialAttacks?.Select(t => new SpecialAttackSelectItem(t, this.Enemy))?.ToArray() ?? [])
         .ToArray();
@@ -421,7 +421,7 @@
     {
         var parameters = new DialogParameters<SimpleChoiceDialog<BattleStateSelectItem>>(){
             { x => x.ChoiceItems, BattleStates },
-            { x => x.ItemToString, new Func<BattleStateSelectItem?, string>(x => x == null ? "なし" : x.DisplayString) }
+            { x => x.ItemToString, new Func<BattleStateSelectItem?, string>(x => x?.DisplayString ?? "") }
         };
 
         var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<BattleStateSelectItem>>("状態", parameters);
@@ -430,7 +430,7 @@
         if (!(result?.Canceled ?? true))
         {
             var selectedValue = result.Data as BattleStateSelectItem;
-            if (selectedValue == null)
+            if (selectedValue?.BattleState == null)
             {
                 this.monster.DettacheBattleState();
             }
@@ -445,7 +445,7 @@
     {
         var parameters = new DialogParameters<SimpleChoiceDialog<SpecialAttackSelectItem>>(){
             { x => x.ChoiceItems, Specials },
-            { x => x.ItemToString, new Func<SpecialAttackSelectItem, string>(x => x == null ? "なし" : x.DisplayString) }
+            { x => x.ItemToString, new Func<SpecialAttackSelectItem?, string>(x => x?.DisplayString ?? "") }
         };
 
         var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<SpecialAttackSelectItem>>("必殺", parameters);
@@ -454,7 +454,7 @@
         if (!(result?.Canceled ?? true))
         {
             var selectedValue = result.Data as SpecialAttackSelectItem;
-            if (selectedValue == null)
+            if (selectedValue?.SpecialAttack == null)
             {
                 this.monster.DettacheSpecial();
             }
@@ -469,7 +469,7 @@
     {
         var parameters = new DialogParameters<SimpleChoiceDialog<TransformSelectItem>>(){
             { x => x.ChoiceItems, Transforms },
-            { x => x.ItemToString, new Func<TransformSelectItem, string>(x => x == null ? "なし" : x.DisplayString) }
+            { x => x.ItemToString, new Func<TransformSelectItem?, string>(x => x?.DisplayString ?? "") }
         };
 
         var dialog = await DialogService.ShowAsync<SimpleChoiceDialog<TransformSelectItem>>("変身", parameters);
@@ -478,7 +478,7 @@
         if (!(result?.Canceled ?? true))
         {
             var selectedValue = result.Data as TransformSelectItem;
-            if (selectedValue != null)
+            if (selectedValue?.Monster != null)
             {
                 await this.Transform(selectedValue.Monster);
             }
