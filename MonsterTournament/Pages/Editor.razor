@@ -80,15 +80,13 @@
 
         battleCard = cardOrNull;
         imageBytes = imagesByName.TryGetValue(battleCard.ImageFileName, out var bytes) ? bytes : [];
+        transformWithImages = cardOrNull.Transforms.Select(t => new TransformWithImage
+            {
+                Transform = t,
+                ImageBytes = imagesByName.TryGetValue(t.ImageFileName, out var b) ? b : []
+            })
+            .ToList();
 
-        foreach (var t in cardOrNull.Transforms)
-        {
-            transformWithImages.Add(new TransformWithImage
-                {
-                    Transform = t,
-                    ImageBytes = imagesByName.TryGetValue(t.ImageFileName, out var b) ? b : []
-                });
-        }
         await this.editorBattleCard.UpdateImage(imageBytes);
     }
 
@@ -98,6 +96,8 @@
         {
             {battleCard.ImageFileName, imageBytes}
         };
+
+        battleCard.Transforms.Clear();
         foreach (var t in transformWithImages)
         {
             battleCard.Transforms.Add(t.Transform);

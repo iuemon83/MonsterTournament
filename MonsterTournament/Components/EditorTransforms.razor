@@ -14,7 +14,18 @@
             <MudList T="TransformWithImage" @bind-SelectedValue=selectedTransform>
                 @foreach (var state in Transforms)
                 {
-                    <MudListItem Text="@state.Transform.Name" IconColor="Color.Secondary" Icon="fas fa-sync-alt" Value="@state" />
+                    <MudListItem Value="@state">
+                        <AvatarContent>
+                            <AttackIcon AttackType="@BattleCardAttackType.Transform" />
+                        </AvatarContent>
+                        <ChildContent>
+                            <div class="d-flex justify-space-between align-center">
+                                @state.Transform.Name
+                                <MudIconButton Icon="fas fa-trash" Variant="Variant.Filled" Color="Color.Error"
+                                               @onclick="() => Remove(state)" />
+                            </div>
+                        </ChildContent>
+                    </MudListItem>
                 }
             </MudList>
         </MudPaper>
@@ -48,5 +59,14 @@
     {
         selectedTransform = new();
         Transforms.Add(selectedTransform);
+    }
+
+    private void Remove(TransformWithImage value)
+    {
+        Transforms.Remove(value);
+        if (value == selectedTransform)
+        {
+            selectedTransform = default;
+        }
     }
 }

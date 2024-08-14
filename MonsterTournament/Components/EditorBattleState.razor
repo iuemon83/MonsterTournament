@@ -14,7 +14,18 @@
             <MudList T="BattleState" @bind-SelectedValue=selectedBattleState>
                 @foreach (var state in BattleStates)
                 {
-                    <MudListItem Text="@state.Name" IconColor="Color.Warning" Icon="fas fa-water" Value="@state" />
+                    <MudListItem Value="@state">
+                        <AvatarContent>
+                            <AttackIcon AttackType="@BattleCardAttackType.BattleState" />
+                        </AvatarContent>
+                        <ChildContent>
+                            <div class="d-flex justify-space-between align-center">
+                                @state.Name
+                                <MudIconButton Icon="fas fa-trash" Variant="Variant.Filled" Color="Color.Error"
+                                               @onclick="() => Remove(state)" />
+                            </div>
+                        </ChildContent>
+                    </MudListItem>
                 }
             </MudList>
         </MudPaper>
@@ -57,5 +68,14 @@
                 Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
             };
         BattleStates.Add(selectedBattleState);
+    }
+
+    private void Remove(BattleState value)
+    {
+        BattleStates.Remove(value);
+        if (value == selectedBattleState)
+        {
+            selectedBattleState = default;
+        }
     }
 }

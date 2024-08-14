@@ -14,7 +14,18 @@
             <MudList T="SpecialAttack" @bind-SelectedValue=selectedSpecialAttack>
                 @foreach (var state in SpecialAttacks)
                 {
-                    <MudListItem Text="@state.Name" IconColor="Color.Secondary" Icon="fas fa-star" Value="@state" />
+                    <MudListItem Value="@state">
+                        <AvatarContent>
+                            <AttackIcon AttackType="@BattleCardAttackType.Special" />
+                        </AvatarContent>
+                        <ChildContent>
+                            <div class="d-flex justify-space-between align-center">
+                                @state.Name
+                                <MudIconButton Icon="fas fa-trash" Variant="Variant.Filled" Color="Color.Error"
+                                               @onclick="() => Remove(state)" />
+                            </div>
+                        </ChildContent>
+                    </MudListItem>
                 }
             </MudList>
         </MudPaper>
@@ -56,5 +67,14 @@
                 Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
             };
         SpecialAttacks.Add(selectedSpecialAttack);
+    }
+
+    private void Remove(SpecialAttack value)
+    {
+        SpecialAttacks.Remove(value);
+        if (value == selectedSpecialAttack)
+        {
+            selectedSpecialAttack = default;
+        }
     }
 }
