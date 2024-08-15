@@ -46,12 +46,7 @@
 
 @code {
     [Parameter]
-    public Monster Monster { get; set; } = new()
-        {
-            Name = "新規のモンスター",
-            Hp = 0,
-            Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
-        };
+    public Monster Monster { get; set; } = Monster.Empty;
 
     [Parameter]
     public byte[] ImageBytes { get; set; } = [];

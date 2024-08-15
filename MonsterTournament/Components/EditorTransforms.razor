@@ -11,7 +11,7 @@
 <MudGrid Justify="Justify.Center" Spacing="10">
     <MudItem xs="12" lg="3">
         <MudPaper MinWidth="300px">
-            <MudList T="MonsterWithImage" @bind-SelectedValue=selectedTransform>
+            <MudList T="MonsterWithImage" @bind-SelectedValue:get=selectedTransform @bind-SelectedValue:set=SelectTransform >
                 @foreach (var state in Transforms)
                 {
                     <MudListItem Value="@state">
@@ -34,19 +34,19 @@
     <MudItem xs="12" lg="9">
         @if (selectedTransform != null)
         {
-            <EditorMonster Monster="selectedTransform.Transform" @bind-ImageBytes="selectedTransform.ImageBytes" />
+            <EditorMonster @ref=editorMonster Monster="selectedTransform.Transform" @bind-ImageBytes="selectedTransform.ImageBytes" />
         }
     </MudItem>
 </MudGrid>
 
 @code {
+    #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    EditorMonster editorMonster;
+#pragma warning restore CS8618
+
     public class MonsterWithImage
     {
-        public Monster Transform { get; set; } = new()
-            {
-                Name = "新規の変身",
-                Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
-            };
+        public Monster Transform { get; set; } = Monster.Empty;
         public byte[] ImageBytes { get; set; } = [];
     }
 
@@ -54,6 +54,16 @@
     public List<MonsterWithImage> Transforms { get; set; } = new();
 
     public MonsterWithImage? selectedTransform;
+
+    public async Task SelectTransform(MonsterWithImage? value)
+    {
+        selectedTransform = value;
+
+        if (value != null && this.editorMonster != null)
+        {
+            await this.editorMonster.UpdateImage(value.ImageBytes);
+        }
+    }
 
     private void AddNew()
     {
