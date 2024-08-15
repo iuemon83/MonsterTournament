@@ -101,7 +101,7 @@
             return;
         }
 
-        Monster.ImageFileName = file.Name;
+        Monster.ImageFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.Name)}";
 
         var buffer = new byte[file.Size];
         using var fileStream = file.OpenReadStream(Config.MaxImageFileSizeInBytes);
