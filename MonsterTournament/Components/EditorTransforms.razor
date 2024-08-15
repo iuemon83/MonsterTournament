@@ -11,7 +11,7 @@
 <MudGrid Justify="Justify.Center" Spacing="10">
     <MudItem xs="12" lg="3">
         <MudPaper MinWidth="300px">
-            <MudList T="MonsterWithImage" @bind-SelectedValue:get=selectedTransform @bind-SelectedValue:set=SelectTransform >
+            <MudList T="MonsterWithImage" @bind-SelectedValue:get=selectedTransform @bind-SelectedValue:set=SelectTransform>
                 @foreach (var state in Transforms)
                 {
                     <MudListItem Value="@state">
@@ -34,13 +34,16 @@
     <MudItem xs="12" lg="9">
         @if (selectedTransform != null)
         {
-            <EditorMonster @ref=editorMonster Monster="selectedTransform.Transform" @bind-ImageBytes="selectedTransform.ImageBytes" />
+            <EditorMonster @ref=editorMonster Monster="selectedTransform.Transform" @bind-ImageBytes="selectedTransform.ImageBytes"
+                           TransformNames="@TransformNames"
+                           BattleStateNames="@BattleStateNames"
+                           SpecialAttackNames="@SpecialAttackNames" />
         }
     </MudItem>
 </MudGrid>
 
 @code {
-    #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     EditorMonster editorMonster;
 #pragma warning restore CS8618
 
@@ -52,6 +55,15 @@
 
     [Parameter]
     public List<MonsterWithImage> Transforms { get; set; } = new();
+
+    [Parameter]
+    public string[] TransformNames { get; set; } = [];
+
+    [Parameter]
+    public string[] BattleStateNames { get; set; } = [];
+
+    [Parameter]
+    public string[] SpecialAttackNames { get; set; } = [];
 
     public MonsterWithImage? selectedTransform;
 

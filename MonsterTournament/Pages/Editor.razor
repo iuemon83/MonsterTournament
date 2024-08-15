@@ -17,7 +17,7 @@
         </ActivatorContent>
     </MudFileUpload>
     <MudButton StartIcon="@Icons.Material.Filled.Download" Variant="Variant.Filled" Color="Color.Primary"
-               Disabled="@(!success)" @onclick=Download>ダウンロード</MudButton>
+               Disabled="@(!this.success)" @onclick=Download>ダウンロード</MudButton>
 </div>
 
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
@@ -26,7 +26,10 @@
                        TransformNames="@transformNames" BattleStateNames="@battleStateNames" SpecialAttackNames="@specialAttackNames" />
     </MudTabPanel>
     <MudTabPanel Text="変身">
-        <EditorTransforms Transforms="transformWithImages" />
+        <EditorTransforms Transforms="transformWithImages"
+                          TransformNames="@transformNames"
+                          BattleStateNames="@battleStateNames"
+                          SpecialAttackNames="@specialAttackNames" />
     </MudTabPanel>
     <MudTabPanel Text="必殺技">
         <EditorSpecialAttack SpecialAttacks="battleCard.SpecialAttacks" />
@@ -39,21 +42,16 @@
 <FileDownloader @ref=fileDownload />
 
 @code {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     FileDownloader fileDownload;
     EditorMonster editorMonster;
 #pragma warning restore CS8618
 
-    bool success = true;
+    private bool success = true;
 
-    private BattleCard battleCard = new BattleCard()
+    private BattleCard battleCard = new()
         {
-            Main = new()
-            {
-                Name = "新規のモンスター",
-                Hp = 0,
-                Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
-            }
+            Main = Monster.Empty
         };
 
     private byte[] mainImage = [];
@@ -101,7 +99,7 @@
     {
         var imagesByName = new Dictionary<string, byte[]>
         {
-            {battleCard.Main.ImageFileName, mainImage}
+            { battleCard.Main.ImageFileName, mainImage }
         };
 
         battleCard.Transforms.Clear();

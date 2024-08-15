@@ -4,7 +4,7 @@
     {
         public static Monster Empty => new()
         {
-            Name = "新規の変身",
+            Name = "新規のモンスター",
             Attacks = Enumerable.Range(1, 6).Select(i => new BattleCardAttack()).ToArray()
         };
 

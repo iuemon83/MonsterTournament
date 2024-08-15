@@ -19,19 +19,19 @@
     </MudFileUpload>
 
     <div Class="d-flex justify-center mb-5 gap-5">
-        @if (ImageBytes.Length > 0)
-        {
-            <MudImage id=@cardImageElementId Height=@Config.ImageSize.Y Width=@Config.ImageSize.X
-                      ObjectPosition="ObjectPosition.Center" />
-        }
-        else
-        {
-            <MudPaper Outlined="true" Square="true"
-                      Height=@($"{@Config.ImageSize.Y}px") Width=@($"{@Config.ImageSize.X}px")
-                      Class="d-flex justify-center align-center">
-                <MudText>画像(@(Config.ImageSize.X)x@(Config.ImageSize.Y))</MudText>
-            </MudPaper>
-        }
+        <MudPaper Outlined="true" Square="true"
+                  Height=@($"{@Config.ImageSize.Y}rem") Width=@($"{@Config.ImageSize.X}rem")
+                  Class="d-flex">
+            @if (ImageBytes.Length > 0)
+            {
+                <MudImage id=@cardImageElementId ObjectFit="ObjectFit.Contain"
+                          ObjectPosition="ObjectPosition.Center" Fluid="true" />
+            }
+            else
+            {
+                <MudText Style="height: 100%;width: 100%; align-content: center;" Align="Align.Center">画像</MudText>
+            }
+        </MudPaper>
 
         <MudTextField T="string" Label="フレーバーテキスト" Variant="Variant.Text" @bind-Text="@Monster.FlavorText" Lines="10" />
     </div>
@@ -71,6 +71,7 @@
 #pragma warning restore CS8618
 
     bool success;
+    public bool Success => this.success;
     string[] errors = { };
 
     private readonly string cardImageElementId = Guid.NewGuid().ToString();
