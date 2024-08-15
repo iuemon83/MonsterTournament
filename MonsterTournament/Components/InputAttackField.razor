@@ -98,17 +98,38 @@
                                     </MudSelectItem>
                                 }
                             </MudSelect>
-                            <MudTextField T="string" Label="状態異常" Required="true"
-                                          @bind-Value=battleCardAttack.Value />
+                            <MudSelect T="string" Label="状態異常" AnchorOrigin="Origin.BottomCenter" FullWidth="false"
+                                       @bind-Value=battleCardAttack.Value>
+                                @foreach (var t in BattleStateNames)
+                                {
+                                    <MudSelectItem Value="@t">
+                                        @t
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
                         </div>
                         break;
                     case BattleCardAttackType.Transform:
-                        <MudTextField T="string" Label="変身先" Required="true"
-                                      @bind-Value=battleCardAttack.Value />
+                        <MudSelect T="string" Label="変身先" AnchorOrigin="Origin.BottomCenter" FullWidth="false"
+                                   @bind-Value=battleCardAttack.Value>
+                            @foreach (var t in TransformNames)
+                            {
+                                <MudSelectItem Value="@t">
+                                    @t
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
                         break;
                     case BattleCardAttackType.Special:
-                        <MudTextField T="string" Label="必殺技" Required="true"
-                                      @bind-Value=battleCardAttack.Value />
+                        <MudSelect T="string" Label="必殺技" AnchorOrigin="Origin.BottomCenter" FullWidth="false"
+                                   @bind-Value=battleCardAttack.Value>
+                            @foreach (var t in SpecialAttackNames)
+                            {
+                                <MudSelectItem Value="@t">
+                                    @t
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
                         break;
                     case BattleCardAttackType.Other:
                         <MudTextField T="string" Label="効果" Required="true"
@@ -132,4 +153,13 @@
 
     [Parameter]
     public bool requireName { get; set; } = true;
+
+    [Parameter]
+    public string[] TransformNames { get; set; } = [];
+
+    [Parameter]
+    public string[] BattleStateNames { get; set; } = [];
+
+    [Parameter]
+    public string[] SpecialAttackNames { get; set; } = [];
 }

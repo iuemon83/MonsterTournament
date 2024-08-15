@@ -22,23 +22,24 @@
 
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
     <MudTabPanel Text="モンスター">
-        <MonsterTournament.Components.EditorMonster @ref=editorMonster Monster="battleCard.Main" @bind-ImageBytes="mainImage" />
+        <EditorMonster @ref=editorMonster Monster="battleCard.Main" @bind-ImageBytes="mainImage"
+                       TransformNames="@transformNames" BattleStateNames="@battleStateNames" SpecialAttackNames="@specialAttackNames" />
     </MudTabPanel>
     <MudTabPanel Text="変身">
-        <MonsterTournament.Components.EditorTransforms Transforms="transformWithImages" />
+        <EditorTransforms Transforms="transformWithImages" />
     </MudTabPanel>
     <MudTabPanel Text="必殺技">
-        <MonsterTournament.Components.EditorSpecialAttack SpecialAttacks="battleCard.SpecialAttacks" />
+        <EditorSpecialAttack SpecialAttacks="battleCard.SpecialAttacks" />
     </MudTabPanel>
     <MudTabPanel Text="状態異常">
-        <MonsterTournament.Components.EditorBattleState BattleStates="battleCard.BattleStates" />
+        <EditorBattleState BattleStates="battleCard.BattleStates" />
     </MudTabPanel>
 </MudTabs>
 
 <FileDownloader @ref=fileDownload />
 
 @code {
-    #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     FileDownloader fileDownload;
     EditorMonster editorMonster;
 #pragma warning restore CS8618
@@ -58,6 +59,10 @@
     private byte[] mainImage = [];
 
     private List<MonsterWithImage> transformWithImages = [];
+
+    private string[] transformNames => this.transformWithImages.Select(t => t.Transform.Name).ToArray();
+    private string[] battleStateNames => this.battleCard.BattleStates.Select(t => t.Name).ToArray();
+    private string[] specialAttackNames => this.battleCard.SpecialAttacks.Select(t => t.Name).ToArray();
 
     private async Task LoadCard(IBrowserFile file)
     {

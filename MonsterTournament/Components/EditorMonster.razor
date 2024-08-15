@@ -38,7 +38,8 @@
 
     @foreach (var i in Enumerable.Range(0, Monster.Attacks.Length))
     {
-        <InputAttackField i="@i" battleCardAttack=Monster.Attacks[i] />
+        <InputAttackField i="@i" battleCardAttack=Monster.Attacks[i]
+                          TransformNames="@TransformNames" BattleStateNames="@BattleStateNames" SpecialAttackNames="@SpecialAttackNames" />
     }
 </MudForm>
 
@@ -53,6 +54,15 @@
 
     [Parameter]
     public EventCallback<byte[]> ImageBytesChanged { get; set; }
+
+    [Parameter]
+    public string[] TransformNames { get; set; } = [];
+
+    [Parameter]
+    public string[] BattleStateNames { get; set; } = [];
+
+    [Parameter]
+    public string[] SpecialAttackNames { get; set; } = [];
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     MudForm form;
