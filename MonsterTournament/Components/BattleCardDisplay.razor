@@ -102,46 +102,63 @@
 
                             @if (this.monster.SpecialAttackAttached)
                             {
+                                // 必殺
                                 <MudItem sm="4">
-                                    <MudText Class="overflow-hidden"
-                                             Style=@($"height: 1.6rem;font-size: clamp(10px, {10f / Math.Max(1, attack.SpecialName.Length)}rem, 20px)")
-                                             Align="Align.Center" Typo="Typo.body1">@attack.SpecialName</MudText>
+                                    <MudTooltip Text="@attack.SpecialName">
+                                        <MudText Class="overflow-hidden"
+                                                 Style=@($"height: 1.6rem;font-size: clamp(10px, {10f / Math.Max(1, attack.SpecialName.Length)}rem, 20px)")
+                                                 Align="Align.Center" Typo="Typo.body1">@attack.SpecialName</MudText>
+                                    </MudTooltip>
                                 </MudItem>
                                 <MudItem sm="7">
-                                    <MudText Class="overflow-hidden"
-                                             Style=@($"height: 1.6rem;font-size: clamp(10px, {8f / Math.Max(1, attack.SpecialAttackDescription.Length)}rem, 15px)")
-                                             Align="Align.Center">@attack.SpecialAttackDescription</MudText>
+                                    <MudTooltip Text="@attack.SpecialAttackDescription">
+                                        <MudText Class="overflow-hidden"
+                                                 Style=@($"height: 1.6rem;font-size: clamp(10px, {8f / Math.Max(1, attack.SpecialAttackDescription.Length)}rem, 15px)")
+                                                 Align="Align.Center">@attack.SpecialAttackDescription</MudText>
+                                    </MudTooltip>
                                 </MudItem>
                             }
                             else
                             {
+                                // 名前と説明欄
                                 @if (attack.Def.Type == BattleCardAttackType.Transform
                                || attack.Def.Type == BattleCardAttackType.Special)
                                 {
-                                    <MudItem sm="8">
-                                        <MudText Class="overflow-hidden"
-                                                 Style=@($"height: 1.6rem;font-size: clamp(10px, {15f / Math.Max(1, attack.Description.Length)}rem, 20px)")
-                                                 Align="Align.Center" Typo="Typo.body1">@attack.Description</MudText>
+                                    // 必殺と変身マス
+                                    <MudItem sm="8" Style="text-align: center">
+                                        <MudTooltip Text="@attack.Description">
+                                            <MudText Class="overflow-hidden"
+                                                     Style=@($"height: 1.6rem;font-size: clamp(10px, {15f / Math.Max(1, attack.Description.Length)}rem, 20px)")
+                                                     Align="Align.Center" Typo="Typo.body1">@attack.Description</MudText>
+                                        </MudTooltip>
                                     </MudItem>
                                 }
                                 else
                                 {
+                                    // 必殺と変身マス以外
                                     <MudItem sm="4">
-                                        <MudText Class="overflow-hidden"
-                                                 Style=@($"height: 1.6rem;font-size: clamp(10px, {10f / Math.Max(1, attack.Name.Length)}rem, 20px)")>@attack.Name</MudText>
+                                        <MudTooltip Text="@attack.Name">
+                                            <MudText Class="overflow-hidden"
+                                                     Style=@($"height: 1.6rem;font-size: clamp(10px, {10f / Math.Max(1, attack.Name.Length)}rem, 20px)")>@attack.Name</MudText>
+                                        </MudTooltip>
                                     </MudItem>
                                     <MudItem sm="4">
-                                        <MudText Class="overflow-hidden"
-                                                 Style=@($"height: 1.6rem;font-size: clamp(10px, {8f / Math.Max(1, attack.Description.Length)}rem, 15px)")>@attack.Description</MudText>
+                                        <MudTooltip Text="@attack.Description">
+                                            <MudText Class="overflow-hidden"
+                                                     Style=@($"height: 1.6rem;font-size: clamp(10px, {8f / Math.Max(1, attack.Description.Length)}rem, 15px)")>@attack.Description</MudText>
+                                        </MudTooltip>
                                     </MudItem>
                                 }
 
+                                // 状態異常欄
                                 <MudItem sm="3">
-                                    <div class="d-flex gap-2">
-                                        <MudDivider Vertical="true" FlexItem="true" />
-                                        <MudText Class="overflow-hidden"
-                                                 Style=@($"height: 1.6rem;font-size: clamp(10px, {7f / Math.Max(1, attack.StatusDescription.Length)}rem, 15px)")>@attack.StatusDescription</MudText>
-                                    </div>
+                                    <MudTooltip Text="@attack.StatusDescription">
+                                        <div class="d-flex gap-2">
+                                            <MudDivider Vertical="true" FlexItem="true" />
+                                            <MudText Class="overflow-hidden"
+                                                     Style=@($"height: 1.6rem;font-size: clamp(10px, {7f / Math.Max(1, attack.StatusDescription.Length)}rem, 15px)")>@attack.StatusDescription</MudText>
+                                        </div>
+                                    </MudTooltip>
                                 </MudItem>
                             }
                         </MudGrid>
