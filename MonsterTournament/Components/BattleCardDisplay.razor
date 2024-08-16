@@ -85,8 +85,18 @@
         </MudContainer>
 
         <MudContainer Class="d-flex justify-center gap-4 mb-3">
-            <MudText Typo="Typo.body1">状態: @this.monster.BattleStateName</MudText>
-            <MudText Typo="Typo.body1">バフ: @this.monster.DiffValue</MudText>
+            <MudText Typo="Typo.body1">
+                状態: <MudText Inline="true" Typo="Typo.body1"
+                             Color="@(this.monster.BattleStateAttached ? Color.Warning : Color.Default)">
+                    @this.monster.BattleStateName
+                </MudText>
+            </MudText>
+            <MudText Typo="Typo.body1">
+                バフ: <MudText Inline="true" Typo="Typo.body1"
+                             Color="@(this.monster.DiffValue== 0 ? Color.Default : (this.monster.DiffValue > 0 ? Color.Success : Color.Error))">
+                    @($"{this.monster.DiffValue:+#;-#;0}")
+                </MudText>
+            </MudText>
         </MudContainer>
 
 
@@ -150,7 +160,7 @@
                                     </MudItem>
                                 }
 
-                                // 状態異常欄
+                                        // 状態異常欄
                                 <MudItem sm="3">
                                     <MudTooltip Text="@attack.StatusDescription">
                                         <div class="d-flex gap-2">
