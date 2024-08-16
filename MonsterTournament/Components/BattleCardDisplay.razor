@@ -221,6 +221,20 @@
             IsSelected = false;
         }
     }
+
+    public record TransformSelectItem(Monster? Monster, BattleCard? owner)
+    {
+        public string DisplayString => Monster == null ? "なし" : $"{Monster.Name}({owner?.Main.Name})";
+    }
+    public record BattleStateSelectItem(BattleState? BattleState, BattleCard? owner)
+    {
+        public string DisplayString => BattleState == null ? "なし" : $"{BattleState.Name}({owner?.Main.Name})";
+    }
+    public record SpecialAttackSelectItem(SpecialAttack? SpecialAttack, BattleCard? owner)
+    {
+        public string DisplayString => SpecialAttack == null ? "なし" : $"{SpecialAttack.Name}({owner?.Main.Name})";
+    }
+
 }
 
 @code {
@@ -252,19 +266,6 @@
     private string actionName => this.monster.Source.SpecialAttackAttached ? $"必殺: {this.monster.Source.SpecialName}" : "たたかう";
 
     private readonly string cardImageElementId = Guid.NewGuid().ToString();
-
-    public record TransformSelectItem(Monster? Monster, BattleCard? owner)
-    {
-        public string DisplayString => Monster == null ? "なし" : $"{Monster.Name}({owner?.Main.Name})";
-    }
-    public record BattleStateSelectItem(BattleState? BattleState, BattleCard? owner)
-    {
-        public string DisplayString => BattleState == null ? "なし" : $"{BattleState.Name}({owner?.Main.Name})";
-    }
-    public record SpecialAttackSelectItem(SpecialAttack? SpecialAttack, BattleCard? owner)
-    {
-        public string DisplayString => SpecialAttack == null ? "なし" : $"{SpecialAttack.Name}({owner?.Main.Name})";
-    }
 
     private IReadOnlyList<TransformSelectItem> Transforms =>
         (this.My == null ? [] : new[] { new TransformSelectItem(this.My.Main, this.My) })
