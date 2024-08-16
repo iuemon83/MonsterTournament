@@ -30,12 +30,6 @@
     private BattleCardDisplay? battleCardDisplay1;
     private BattleCardDisplay? battleCardDisplay2;
 
-    private BattleCard? card1;
-    private Dictionary<string, byte[]> imagesByName1 = [];
-
-    private BattleCard? card2;
-    private Dictionary<string, byte[]> imagesByName2 = [];
-
     private async Task LoadCard1(IBrowserFile file)
     {
         var x = await LoadCard(file);
