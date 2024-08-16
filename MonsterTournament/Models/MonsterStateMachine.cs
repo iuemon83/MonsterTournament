@@ -33,7 +33,7 @@ namespace MonsterTournament.Models
         public MonsterStateMachine(Monster source, MonsterStateMachine baseCard) : this(source)
         {
             // 現在の状態を引き継ぐ
-            this.CurrentHp = Math.Min(this.Def.Hp, baseCard.CurrentHp);
+            this.CurrentHp = Math.Max(0, this.Def.Hp - (baseCard.Def.Hp - baseCard.CurrentHp));
             this.Buff(baseCard.DiffValue);
             if (baseCard.battleStateOrNull != null)
             {

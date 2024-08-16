@@ -6,7 +6,7 @@ namespace MonsterTournament.Models
 {
     public class BattleCardLoader
     {
-        public static readonly string FileExtension = ".mtbc";
+        public static readonly string FileExtension = ".mtc";
         public static readonly string JsonFileName = "card.json";
 
         public async Task<MonsterTounamentFile> Save(BattleCard model, Dictionary<string, byte[]> imagesByName)
