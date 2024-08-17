@@ -9,11 +9,16 @@
             return a.Type switch
             {
                 BattleCardAttackType.Miss => "ミス",
-                BattleCardAttackType.Attack => $"{a.Target.ToDisplayString()}に{intValueWithBuff}ダメージ",
-                BattleCardAttackType.Heal => $"{a.Target.ToDisplayString()}を{intValueWithBuff}回復",
-                BattleCardAttackType.ReAttack => $"もう一度・{a.Target.ToDisplayString()}に{intValueWithBuff}",
-                BattleCardAttackType.Buff => $"{a.Target.ToDisplayString()}の攻撃を{a.IntValue:+#;-#;0}",
-                BattleCardAttackType.BattleState => $"{a.Target.ToDisplayString()}を状態:{a.Value}",
+                BattleCardAttackType.Attack
+                    => $"{(a.Target != AttackTarget.Enemy ? $"{a.Target.ToDisplayString()}に" : "")}{intValueWithBuff}ダメージ",
+                BattleCardAttackType.Heal
+                    => $"{(a.Target != AttackTarget.Self ? $"{a.Target.ToDisplayString()}を" : "")}{intValueWithBuff}回復",
+                BattleCardAttackType.ReAttack
+                    => $"もう一度・{(a.Target != AttackTarget.Enemy ? $"{a.Target.ToDisplayString()}に" : "")}{intValueWithBuff}",
+                BattleCardAttackType.Buff
+                    => $"{(a.Target != AttackTarget.Self ? $"{a.Target.ToDisplayString()}の" : "")}攻撃を{a.IntValue:+#;-#;0}",
+                BattleCardAttackType.BattleState
+                    => $"{(a.Target != AttackTarget.Enemy ? $"{a.Target.ToDisplayString()}を" : "")}状態:{a.Value}",
                 BattleCardAttackType.Special => $"必殺技:{a.Value}",
                 BattleCardAttackType.Transform => $"{a.Value}に変身",
                 _ => a.Value,
