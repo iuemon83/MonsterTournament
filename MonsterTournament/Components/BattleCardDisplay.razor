@@ -7,40 +7,40 @@
 
 <MudPaper Outlined="true" Class="mb-5">
     <MudContainer Class="d-flex justify-center align-center gap-4 ma-2">
-        <MudButton Disabled=!this.cardLoaded Variant="Variant.Filled" Color="Color.Info" Size="Size.Large"
+        <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Filled" Color="Color.Info" Size="Size.Large"
                    @onclick="Attack">攻撃</MudButton>
 
         <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" OverrideStyles="false">
             @if (this.monster.Source.BattleStateAttached)
             {
-                <MudButton Disabled=!this.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Warning"
+                <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Warning"
                            @onclick="this.monster.Source.DettacheBattleState">
                     <AttackIcon AttackType="BattleCardAttackType.BattleState" />解除
                 </MudButton>
             }
             else
             {
-                <MudButton Disabled=!this.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Warning"
+                <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Warning"
                            @onclick="ShowStateDialog">
                     <AttackIcon AttackType="BattleCardAttackType.BattleState" />
                 </MudButton>
             }
 
-            <MudButton Disabled=!this.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
+            <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
                        @onclick="ShowTransformDialog">
                 <AttackIcon AttackType="BattleCardAttackType.Transform" />
             </MudButton>
 
             @if (this.monster.Source.SpecialAttackAttached)
             {
-                <MudButton Disabled=!this.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
+                <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
                            @onclick="this.monster.Source.DettacheSpecial">
                     <AttackIcon AttackType="BattleCardAttackType.Special" />解除
                 </MudButton>
             }
             else
             {
-                <MudButton Disabled=!this.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
+                <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
                            @onclick="ShowSpecialDialog">
                     <AttackIcon AttackType="BattleCardAttackType.Special" />
                 </MudButton>
@@ -49,9 +49,9 @@
 
         <div class="d-flex justify-center align-center gap-1">
             バフ:
-            <MudIconButton Disabled=!this.cardLoaded Icon="@Icons.Material.Filled.KeyboardDoubleArrowUp" Variant="Variant.Filled"
+            <MudIconButton Disabled=!this.monster.cardLoaded Icon="@Icons.Material.Filled.KeyboardDoubleArrowUp" Variant="Variant.Filled"
                            Color="Color.Success" Size="Size.Small" @onclick="this.Buff" />
-            <MudIconButton Disabled=!this.cardLoaded Icon="@Icons.Material.Filled.KeyboardDoubleArrowDown" Variant="Variant.Filled"
+            <MudIconButton Disabled=!this.monster.cardLoaded Icon="@Icons.Material.Filled.KeyboardDoubleArrowDown" Variant="Variant.Filled"
                            Color="Color.Secondary" Size="Size.Small" @onclick="this.Debuff" />
         </div>
     </MudContainer>
@@ -101,7 +101,7 @@
 
 
         <MudTabs PanelClass="pt-2">
-            <MudTabPanel Text="@actionName">
+            <MudTabPanel Text="@this.monster.actionName">
                 @foreach (var attack in this.monster.Attacks)
                 {
                     <MudPaper Outlined="true" Class="@($"{(attack.IsSelected ? "mud-primary" : "")} pa-2 mb-2")">
@@ -114,19 +114,24 @@
                             {
                                 // 必殺
                                 <MudItem sm="4">
-                                    <MudTooltip Text="@attack.Source.SpecialName">
+                                    <MudTooltip Text="@attack.Source.Name">
                                         <MudText Class="overflow-hidden"
-                                                 Style=@($"height: 1.6rem;font-size: clamp(12px, {10f / Math.Max(1, attack.Source.SpecialName.Length)}rem, 20px)")>
-                                            @attack.Source.SpecialName
+                                                 Style=@($"height: 1.6rem;font-size: clamp(12px, {10f / Math.Max(1, attack.Source.Name.Length)}rem, 20px)")>
+                                            @attack.Source.Name
                                         </MudText>
                                     </MudTooltip>
                                 </MudItem>
                                 <MudItem sm="7">
-                                    <MudTooltip Text="@attack.Source.SpecialAttackDescription">
-                                        <MudText Class="overflow-hidden"
-                                                 Style=@($"height: 1.6rem;font-size: clamp(12px, {8f / Math.Max(1, attack.Source.SpecialAttackDescription.Length)}rem, 15px)")>
-                                            @attack.Source.SpecialAttackDescription
-                                        </MudText>
+                                    <MudTooltip>
+                                        <ChildContent>
+                                            <MudText Class="overflow-hidden"
+                                                     Style=@($"height: 1.6rem;font-size: clamp(12px, {8f / Math.Max(1, 1)}rem, 15px)")>
+                                                <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                            </MudText>
+                                        </ChildContent>
+                                        <TooltipContent>
+                                            <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                        </TooltipContent>
                                     </MudTooltip>
                                 </MudItem>
                             }
@@ -138,12 +143,17 @@
                                 {
                                     // 必殺と変身マス
                                     <MudItem sm="8" Style="text-align: center">
-                                        <MudTooltip Text="@attack.Source.Description">
-                                            <MudText Class="overflow-hidden"
-                                                     Style=@($"height: 1.6rem;font-size: clamp(12px, {15f / Math.Max(1, attack.Source.Description.Length)}rem, 20px)")
-                                                     Align="Align.Center">
-                                                @attack.Source.Description
-                                            </MudText>
+                                        <MudTooltip>
+                                            <ChildContent>
+                                                <MudText Class="overflow-hidden"
+                                                         Style=@($"height: 1.6rem;font-size: clamp(12px, {15f / Math.Max(1, 1)}rem, 20px)")
+                                                         Align="Align.Center">
+                                                    <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                                </MudText>
+                                            </ChildContent>
+                                            <TooltipContent>
+                                                <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                            </TooltipContent>
                                         </MudTooltip>
                                     </MudItem>
                                 }
@@ -151,33 +161,48 @@
                                 {
                                     // 必殺と変身マス以外
                                     <MudItem sm="4">
-                                        <MudTooltip Text="@attack.Source.Name">
-                                            <MudText Class="overflow-hidden"
-                                                     Style=@($"height: 1.6rem;font-size: clamp(12px, {10f / Math.Max(1, attack.Source.Name.Length)}rem, 20px)")>
+                                        <MudTooltip>
+                                            <ChildContent>
+                                                <MudText Class="overflow-hidden"
+                                                         Style=@($"height: 1.6rem;font-size: clamp(12px, {10f / Math.Max(1, attack.Source.Name.Length)}rem, 20px)")>
+                                                    @attack.Source.Name
+                                                </MudText>
+                                            </ChildContent>
+                                            <TooltipContent>
                                                 @attack.Source.Name
-                                            </MudText>
+                                            </TooltipContent>
                                         </MudTooltip>
                                     </MudItem>
                                     <MudItem sm="4">
-                                        <MudTooltip Text="@attack.Source.Description">
-                                            <MudText Class="overflow-hidden"
-                                                     Style=@($"height: 1.6rem;font-size: clamp(12px, {8f / Math.Max(1, attack.Source.Description.Length)}rem, 15px)")>
-                                                @attack.Source.Description
-                                            </MudText>
+                                        <MudTooltip>
+                                            <ChildContent>
+                                                <MudText Class="overflow-hidden"
+                                                         Style=@($"height: 1.6rem;font-size: clamp(12px, {8f / Math.Max(1, 1)}rem, 15px)")>
+                                                    <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                                </MudText>
+                                            </ChildContent>
+                                            <TooltipContent>
+                                                <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                            </TooltipContent>
                                         </MudTooltip>
                                     </MudItem>
                                 }
 
                                         // 状態異常欄
                                 <MudItem sm="3">
-                                    <MudTooltip Text="@attack.Source.StatusDescription">
-                                        <div class="d-flex gap-2">
-                                            <MudDivider Vertical="true" FlexItem="true" />
-                                            <MudText Class="overflow-hidden"
-                                                     Style=@($"height: 1.6rem;font-size: clamp(12px, {7f / Math.Max(1, attack.Source.StatusDescription.Length)}rem, 15px)")>
-                                                @attack.Source.StatusDescription
-                                            </MudText>
-                                        </div>
+                                    <MudTooltip>
+                                        <ChildContent>
+                                            <div class="d-flex gap-2">
+                                                <MudDivider Vertical="true" FlexItem="true" />
+                                                <MudText Class="overflow-hidden"
+                                                         Style=@($"height: 1.6rem;font-size: clamp(12px, {7f / Math.Max(1, 1)}rem, 15px)")>
+                                                    <AttackDescription Attack="@attack.Source.GetStatusAttack().Item1" DiffValue="@attack.Source.GetStatusAttack().Item2" />
+                                                </MudText>
+                                            </div>
+                                        </ChildContent>
+                                        <TooltipContent>
+                                            <AttackDescription Attack="@attack.Source.GetStatusAttack().Item1" DiffValue="@attack.Source.GetStatusAttack().Item2" />
+                                        </TooltipContent>
                                     </MudTooltip>
                                 </MudItem>
                             }
@@ -208,6 +233,9 @@
             this.Source = source;
             this.Attacks = source.Attacks.Select(a => new BattleCardAttackVM(a)).ToArray();
         }
+
+        public bool cardLoaded => this.Source.Attacks.Any();
+        public string actionName => this.Source.SpecialAttackAttached ? $"必殺: {this.Source.SpecialName}" : "たたかう";
     }
 
     class BattleCardAttackVM
@@ -234,15 +262,12 @@
     {
         public string DisplayString => SpecialAttack == null ? "なし" : $"{SpecialAttack.Name}({owner?.Main.Name})";
     }
-
 }
 
 @code {
-    public BattleCard? My;
-    public Dictionary<string, byte[]> MyImagesByName = [];
+    public (BattleCard? Card, Dictionary<string, byte[]> ImagesByName) My = (null, []);
 
-    public BattleCard? Enemy;
-    public Dictionary<string, byte[]> EnemyImagesByName = [];
+    public (BattleCard? Card, Dictionary<string, byte[]> ImagesByName) Enemy = (null, []);
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     FileUploader fileUpload;
@@ -262,61 +287,61 @@
             CurrentHp = 0
         });
 
-    private bool cardLoaded => this.monster.Source.Attacks.Any();
-    private string actionName => this.monster.Source.SpecialAttackAttached ? $"必殺: {this.monster.Source.SpecialName}" : "たたかう";
-
     private readonly string cardImageElementId = Guid.NewGuid().ToString();
 
     private IReadOnlyList<TransformSelectItem> Transforms =>
-        (this.My == null ? [] : new[] { new TransformSelectItem(this.My.Main, this.My) })
-        .Concat(this.My?.Transforms?.Select(t => new TransformSelectItem(t, this.My))?.ToArray() ?? [])
-        .Concat((this.Enemy == null ? [] : new[] { new TransformSelectItem(this.Enemy.Main, this.Enemy) }))
-        .Concat(this.Enemy?.Transforms?.Select(t => new TransformSelectItem(t, this.Enemy))?.ToArray() ?? [])
+        (this.My.Card == null ? [] : new[] { new TransformSelectItem(this.My.Card.Main, this.My.Card) })
+        .Concat(this.My.Card?.Transforms?.Select(t => new TransformSelectItem(t, this.My.Card))?.ToArray() ?? [])
+        .Concat((this.Enemy.Card == null ? [] : new[] { new TransformSelectItem(this.Enemy.Card.Main, this.Enemy.Card) }))
+        .Concat(this.Enemy.Card?.Transforms?.Select(t => new TransformSelectItem(t, this.Enemy.Card))?.ToArray() ?? [])
         .ToArray();
 
     private IReadOnlyList<BattleStateSelectItem?> BattleStates => new[] { new BattleStateSelectItem(null, null) }
-        .Concat(this.My?.BattleStates?.Select(t => new BattleStateSelectItem(t, this.My))?.ToArray() ?? [])
-        .Concat(this.Enemy?.BattleStates?.Select(t => new BattleStateSelectItem(t, this.Enemy))?.ToArray() ?? [])
+        .Concat(this.My.Card?.BattleStates?.Select(t => new BattleStateSelectItem(t, this.My.Card))?.ToArray() ?? [])
+        .Concat(this.Enemy.Card?.BattleStates?.Select(t => new BattleStateSelectItem(t, this.Enemy.Card))?.ToArray() ?? [])
         .ToArray();
 
     private IReadOnlyList<SpecialAttackSelectItem?> Specials => new[] { new SpecialAttackSelectItem(null, null) }
-        .Concat(this.My?.SpecialAttacks?.Select(t => new SpecialAttackSelectItem(t, this.My))?.ToArray() ?? [])
-        .Concat(this.Enemy?.SpecialAttacks?.Select(t => new SpecialAttackSelectItem(t, this.Enemy))?.ToArray() ?? [])
+        .Concat(this.My.Card?.SpecialAttacks?.Select(t => new SpecialAttackSelectItem(t, this.My.Card))?.ToArray() ?? [])
+        .Concat(this.Enemy.Card?.SpecialAttacks?.Select(t => new SpecialAttackSelectItem(t, this.Enemy.Card))?.ToArray() ?? [])
         .ToArray();
 
     public async Task LoadMyCard(BattleCard card, Dictionary<string, byte[]> imagesByName)
     {
-        this.My = card;
-        this.MyImagesByName = imagesByName;
+        this.My.Card = card;
+        this.My.ImagesByName = imagesByName;
 
         this.monster = new MonsterVM(new(card.Main));
-        var imageBytes = imagesByName.TryGetValue(monster.Source.Def.ImageFileName, out var bytes) ? bytes : [];
-        if (imageBytes.Length != 0)
-        {
-            await this.fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
-        }
-
         StateHasChanged();
+
+        await this.RefreshImage();
     }
 
     public void LoadEnemyCard(BattleCard card, Dictionary<string, byte[]> imagesByName)
     {
-        this.Enemy = card;
-        this.EnemyImagesByName = imagesByName;
+        this.Enemy.Card = card;
+        this.Enemy.ImagesByName = imagesByName;
     }
 
     private async Task Transform(Monster transform)
     {
         this.monster = monster == null ? new(new(transform)) : new(new(transform, this.monster.Source));
-        var imageBytes = this.MyImagesByName.TryGetValue(monster.Source.Def.ImageFileName, out var bytes) ? bytes : [];
+        await this.RefreshImage();
+    }
+
+    private async Task RefreshImage()
+    {
+        var imageBytes = this.My.ImagesByName.TryGetValue(monster.Source.Def.ImageFileName, out var bytes) ? bytes : [];
         if (imageBytes.Length != 0)
         {
             await this.fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
+            return;
         }
-        imageBytes = this.EnemyImagesByName.TryGetValue(monster.Source.Def.ImageFileName, out bytes) ? bytes : [];
+        imageBytes = this.Enemy.ImagesByName.TryGetValue(monster.Source.Def.ImageFileName, out bytes) ? bytes : [];
         if (imageBytes.Length != 0)
         {
             await this.fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
+            return;
         }
     }
 

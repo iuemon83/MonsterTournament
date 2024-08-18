@@ -1,0 +1,64 @@
+﻿@using MonsterTournament.Models
+
+@if (Attack != null)
+{
+    <span @ref=_element>
+        @switch (Attack.Type)
+        {
+            case BattleCardAttackType.Miss:
+                @("ミス")
+                break;
+            case BattleCardAttackType.Attack:
+                @($"{(Attack.Target != AttackTarget.Enemy ? $"{Attack.Target.ToDisplayString()}に" : "")}")
+                <MudText Inline="true" Style="font-size:inherit;" Color="@ValueColor">
+                    @intValueWithBuff
+                </MudText>
+                @("ダメージ")
+                break;
+            case BattleCardAttackType.Heal:
+                @($"{(Attack.Target != AttackTarget.Self ? $"{Attack.Target.ToDisplayString()}を" : "")}")
+                <MudText Inline="true" Style="font-size:inherit;" Color="@ValueColor">
+                    @intValueWithBuff
+                </MudText>
+                @("回復")
+                break;
+            case BattleCardAttackType.ReAttack:
+                @($"もう一度・{(Attack.Target != AttackTarget.Enemy ? $"{Attack.Target.ToDisplayString()}に" : "")}")
+                <MudText Inline="true" Style="font-size:inherit;" Color="@ValueColor">
+                    @intValueWithBuff
+                </MudText>
+                break;
+            case BattleCardAttackType.Buff:
+                @($"{(Attack.Target != AttackTarget.Self ? $"{Attack.Target.ToDisplayString()}の" : "")}攻撃を{Attack.IntValue:+#;-#;0}")
+                break;
+            case BattleCardAttackType.BattleState:
+                @($"{(Attack.Target != AttackTarget.Enemy ? $"{Attack.Target.ToDisplayString()}を" : "")}状態:{Attack.Value}")
+                break;
+            case BattleCardAttackType.Special:
+                @($"必殺技:{Attack.Value}")
+                break;
+            case BattleCardAttackType.Transform:
+                @($"{Attack.Value}に変身")
+                break;
+
+            default:
+                @Attack.Value
+                break;
+        }
+    </span>
+}
+
+@code {
+    private ElementReference _element;
+
+
+    [Parameter]
+    public BattleCardAttack? Attack { get; set; }
+
+    [Parameter]
+    public int DiffValue { get; set; }
+
+    private int intValueWithBuff => Math.Max(0, (this.Attack?.IntValue ?? 0) + this.DiffValue);
+
+    private Color ValueColor => this.DiffValue > 0 ? Color.Success : (this.DiffValue < 0 ? Color.Error : default);
+}

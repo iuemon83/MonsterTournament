@@ -35,12 +35,17 @@
             Def = source;
         }
 
-        public string Name => Def.Name;
+        public string Name => Special?.Name ?? Def.Name;
         public BattleCardAttackType Type => this.Special == null ? Def.Type : this.Special.Type;
 
-        public string Description => BuildDescription(this.Def, this.DiffValue);
-        public string StatusDescription => this.StatusDef == null ? "" : BuildDescription(this.StatusDef, 0);
-        public string SpecialName => Special?.Name ?? "";
-        public string SpecialAttackDescription => this.Special == null ? "" : BuildDescription(this.Special, this.DiffValue);
+        public (BattleCardAttack, int) GetAttack()
+        {
+            return (this.Special ?? this.Def, this.DiffValue);
+        }
+
+        public (BattleCardAttack?, int) GetStatusAttack()
+        {
+            return (this.StatusDef, 0);
+        }
     }
 }
