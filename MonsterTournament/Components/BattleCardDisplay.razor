@@ -221,6 +221,18 @@
 <FileDownloader @ref=fileDownload />
 <AudioPlayer @ref=audioPlayer />
 
+<script>
+    window.doMonsterHitEffect = async (elementId) => {
+        const shaker = document.getElementById(elementId);
+        shaker.classList.add("hit");
+
+        // sleep
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        shaker.classList.remove("hit");
+    };
+</script>
+
 @code {
     class MonsterVM
     {
@@ -430,6 +442,7 @@
             if (this.monster.Source.IsAlive)
             {
                 await this.audioPlayer.Play(AudioSrc.Damage);
+                await JS.InvokeVoidAsync("doMonsterHitEffect", cardImageElementId);
             }
             else
             {

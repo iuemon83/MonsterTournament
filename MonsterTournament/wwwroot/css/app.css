@@ -105,3 +105,37 @@ code {
 .monochrome {
     filter: grayscale(100%);
 }
+
+@keyframes rumble {
+    0% {
+        transform: translate(0, 0) rotate(0);
+    }
+
+    16.66% {
+        transform: translate(4px, -2px) rotate(-5deg);
+    }
+
+    33.32% {
+        transform: translate(4px, 2px) rotate(5deg);
+    }
+
+    49.98% {
+        transform: translate(0, 0) rotate(0);
+    }
+
+    66.64% {
+        transform: translate(-4px, -2px) rotate(5deg);
+    }
+
+    83.30% {
+        transform: translate(-4px, 2px) rotate(-5deg);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(0);
+    }
+}
+
+.hit {
+    animation: rumble 0.1s linear infinite;
+}
