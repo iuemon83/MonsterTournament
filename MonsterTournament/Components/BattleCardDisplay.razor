@@ -101,7 +101,7 @@
 
 
         <MudTabs PanelClass="pt-2">
-            <MudTabPanel Text="@this.monster.actionName">
+            <MudTabPanel Text="@this.monster.actionName" Icon="fas fa-hand-rock">
                 @foreach (var attack in this.monster.Attacks)
                 {
                     <MudPaper Outlined="true" Class="@($"{(attack.IsSelected ? "mud-primary" : "")} pa-2 mb-2")">
@@ -210,7 +210,7 @@
                     </MudPaper>
                 }
             </MudTabPanel>
-            <MudTabPanel Text="フレーバーテキスト">
+            <MudTabPanel Text="フレーバーテキスト" Icon="@Icons.Material.Filled.ShortText">
                 <MudText Class="overflow-hidden" Typo="Typo.subtitle1">@monster.Source.FlavorText</MudText>
             </MudTabPanel>
         </MudTabs>
