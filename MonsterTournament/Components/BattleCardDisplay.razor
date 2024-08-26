@@ -11,10 +11,10 @@
                    @onclick="Attack">攻撃</MudButton>
 
         <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" OverrideStyles="false">
-            @if (this.monster.Source.BattleStateAttached)
+            @if (this.monster.SM.BattleStateAttached)
             {
                 <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Warning"
-                           @onclick="this.monster.Source.DettacheBattleState">
+                           @onclick="this.monster.SM.DettacheBattleState">
                     <AttackIcon AttackType="BattleCardAttackType.BattleState" />解除
                 </MudButton>
             }
@@ -31,10 +31,10 @@
                 <AttackIcon AttackType="BattleCardAttackType.Transform" />
             </MudButton>
 
-            @if (this.monster.Source.SpecialAttackAttached)
+            @if (this.monster.SM.SpecialAttackAttached)
             {
                 <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
-                           @onclick="this.monster.Source.DettacheSpecial">
+                           @onclick="this.monster.SM.DettacheSpecial">
                     <AttackIcon AttackType="BattleCardAttackType.Special" />解除
                 </MudButton>
             }
@@ -60,13 +60,13 @@
 <MudPaper Outlined="true">
     <MudContainer>
         <div class="d-flex align-center justify-start">
-            <MudText Class="overflow-hidden" Typo="Typo.h5">@monster.Source.Def.Name</MudText>
+            <MudText Class="overflow-hidden" Typo="Typo.h5">@monster.SM.Def.Name</MudText>
         </div>
         <div class="d-flex align-center justify-start gap-1 mb-4">
             <MudText Typo="Typo.body1" Class="mr-5">HP: </MudText>
-            <MudProgressLinear Class="mr-5" Value="@monster.Source.CurrentHp" Min="0" Max="@monster.Source.Def.Hp" Color="Color.Success" Size="Size.Large">
+            <MudProgressLinear Class="mr-5" Value="@monster.SM.CurrentHp" Min="0" Max="@monster.SM.Def.Hp" Color="Color.Success" Size="Size.Large">
                 <MudText Typo="Typo.h5" Color="Color.Dark" Style="-webkit-text-stroke: 1px #FFF;">
-                    <b>@monster.Source.CurrentHp / @monster.Source.Def.Hp</b>
+                    <b>@monster.SM.CurrentHp / @monster.SM.Def.Hp</b>
                 </MudText>
             </MudProgressLinear>
             <MudIconButton Icon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Success" Size="Size.Small"
@@ -79,7 +79,7 @@
             <MudPaper Outlined="false" Square="true" Elevation="0"
                       Height=@($"{@Config.ImageSize.Y}rem") Width="100%"
                       Class="d-flex justify-center">
-                <MudImage id=@cardImageElementId Class="@(monster.Source.IsAlive ? "" : "monochrome")"
+                <MudImage id=@cardImageElementId Class="@(monster.SM.IsAlive ? "" : "monochrome")"
                           ObjectFit="ObjectFit.Contain" ObjectPosition="ObjectPosition.Center" Fluid="true" />
             </MudPaper>
         </MudContainer>
@@ -87,14 +87,14 @@
         <MudContainer Class="d-flex justify-center gap-4 mb-3">
             <MudText Typo="Typo.body1">
                 状態: <MudText Inline="true" Typo="Typo.body1"
-                             Color="@(this.monster.Source.BattleStateAttached ? Color.Warning : Color.Default)">
-                    @this.monster.Source.BattleStateName
+                             Color="@(this.monster.SM.BattleStateAttached ? Color.Warning : Color.Default)">
+                    @this.monster.SM.BattleStateName
                 </MudText>
             </MudText>
             <MudText Typo="Typo.body1">
                 バフ: <MudText Inline="true" Typo="Typo.body1"
-                             Color="@(this.monster.Source.DiffValue== 0 ? Color.Default : (this.monster.Source.DiffValue > 0 ? Color.Success : Color.Error))">
-                    @($"{this.monster.Source.DiffValue:+#;-#;0}")
+                             Color="@(this.monster.SM.DiffValue== 0 ? Color.Default : (this.monster.SM.DiffValue > 0 ? Color.Success : Color.Error))">
+                    @($"{this.monster.SM.DiffValue:+#;-#;0}")
                 </MudText>
             </MudText>
         </MudContainer>
@@ -107,17 +107,17 @@
                     <MudPaper Outlined="true" Class="@($"{(attack.IsSelected ? "mud-primary" : "")} pa-2 mb-2")">
                         <MudGrid Justify="Justify.FlexStart" Class="align-center">
                             <MudItem sm="1">
-                                <AttackIcon AttackType="@attack.Source.Type" />
+                                <AttackIcon AttackType="@attack.SM.Type" />
                             </MudItem>
 
-                            @if (this.monster.Source.SpecialAttackAttached)
+                            @if (this.monster.SM.SpecialAttackAttached)
                             {
                                 // 必殺
                                 <MudItem sm="4">
-                                    <MudTooltip Text="@attack.Source.Name">
+                                    <MudTooltip Text="@attack.SM.Name">
                                         <MudText Class="overflow-hidden"
-                                                 Style=@($"height: 1.6rem;font-size: clamp(12px, {10f / Math.Max(1, attack.Source.Name.Length)}rem, 20px)")>
-                                            @attack.Source.Name
+                                                 Style=@($"height: 1.6rem;font-size: clamp(12px, {10f / Math.Max(1, attack.SM.Name.Length)}rem, 20px)")>
+                                            @attack.SM.Name
                                         </MudText>
                                     </MudTooltip>
                                 </MudItem>
@@ -126,11 +126,11 @@
                                         <ChildContent>
                                             <MudText Class="overflow-hidden"
                                                      Style=@($"height: 1.6rem;font-size: clamp(12px, {8f / Math.Max(1, 1)}rem, 15px)")>
-                                                <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                                <AttackDescription Attack="@attack.SM.GetAttack().Item1" DiffValue="@attack.SM.GetAttack().Item2" />
                                             </MudText>
                                         </ChildContent>
                                         <TooltipContent>
-                                            <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                            <AttackDescription Attack="@attack.SM.GetAttack().Item1" DiffValue="@attack.SM.GetAttack().Item2" />
                                         </TooltipContent>
                                     </MudTooltip>
                                 </MudItem>
@@ -138,8 +138,8 @@
                             else
                             {
                                 // 名前と説明欄
-                                @if (attack.Source.Type == BattleCardAttackType.Transform
-                               || attack.Source.Type == BattleCardAttackType.Special)
+                                @if (attack.SM.Type == BattleCardAttackType.Transform
+                               || attack.SM.Type == BattleCardAttackType.Special)
                                 {
                                     // 必殺と変身マス
                                     <MudItem sm="8" Style="text-align: center">
@@ -148,11 +148,11 @@
                                                 <MudText Class="overflow-hidden"
                                                          Style=@($"height: 1.6rem;font-size: clamp(12px, {15f / Math.Max(1, 1)}rem, 20px)")
                                                          Align="Align.Center">
-                                                    <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                                    <AttackDescription Attack="@attack.SM.GetAttack().Item1" DiffValue="@attack.SM.GetAttack().Item2" />
                                                 </MudText>
                                             </ChildContent>
                                             <TooltipContent>
-                                                <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                                <AttackDescription Attack="@attack.SM.GetAttack().Item1" DiffValue="@attack.SM.GetAttack().Item2" />
                                             </TooltipContent>
                                         </MudTooltip>
                                     </MudItem>
@@ -164,12 +164,12 @@
                                         <MudTooltip>
                                             <ChildContent>
                                                 <MudText Class="overflow-hidden"
-                                                         Style=@($"height: 1.6rem;font-size: clamp(12px, {10f / Math.Max(1, attack.Source.Name.Length)}rem, 20px)")>
-                                                    @attack.Source.Name
+                                                         Style=@($"height: 1.6rem;font-size: clamp(12px, {10f / Math.Max(1, attack.SM.Name.Length)}rem, 20px)")>
+                                                    @attack.SM.Name
                                                 </MudText>
                                             </ChildContent>
                                             <TooltipContent>
-                                                @attack.Source.Name
+                                                @attack.SM.Name
                                             </TooltipContent>
                                         </MudTooltip>
                                     </MudItem>
@@ -178,11 +178,11 @@
                                             <ChildContent>
                                                 <MudText Class="overflow-hidden"
                                                          Style=@($"height: 1.6rem;font-size: clamp(12px, {8f / Math.Max(1, 1)}rem, 15px)")>
-                                                    <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                                    <AttackDescription Attack="@attack.SM.GetAttack().Item1" DiffValue="@attack.SM.GetAttack().Item2" />
                                                 </MudText>
                                             </ChildContent>
                                             <TooltipContent>
-                                                <AttackDescription Attack="@attack.Source.GetAttack().Item1" DiffValue="@attack.Source.GetAttack().Item2" />
+                                                <AttackDescription Attack="@attack.SM.GetAttack().Item1" DiffValue="@attack.SM.GetAttack().Item2" />
                                             </TooltipContent>
                                         </MudTooltip>
                                     </MudItem>
@@ -196,12 +196,12 @@
                                                 <MudDivider Vertical="true" FlexItem="true" />
                                                 <MudText Class="overflow-hidden"
                                                          Style=@($"height: 1.6rem;font-size: clamp(12px, {7f / Math.Max(1, 1)}rem, 15px)")>
-                                                    <AttackDescription Attack="@attack.Source.GetStatusAttack().Item1" DiffValue="@attack.Source.GetStatusAttack().Item2" />
+                                                    <AttackDescription Attack="@attack.SM.GetStatusAttack().Item1" DiffValue="@attack.SM.GetStatusAttack().Item2" />
                                                 </MudText>
                                             </div>
                                         </ChildContent>
                                         <TooltipContent>
-                                            <AttackDescription Attack="@attack.Source.GetStatusAttack().Item1" DiffValue="@attack.Source.GetStatusAttack().Item2" />
+                                            <AttackDescription Attack="@attack.SM.GetStatusAttack().Item1" DiffValue="@attack.SM.GetStatusAttack().Item2" />
                                         </TooltipContent>
                                     </MudTooltip>
                                 </MudItem>
@@ -211,7 +211,7 @@
                 }
             </MudTabPanel>
             <MudTabPanel Text="フレーバーテキスト" Icon="@Icons.Material.Filled.ShortText">
-                <MudText Class="overflow-hidden" Typo="Typo.subtitle1">@monster.Source.FlavorText</MudText>
+                <MudText Class="overflow-hidden" Typo="Typo.subtitle1">@monster.SM.FlavorText</MudText>
             </MudTabPanel>
         </MudTabs>
     </MudContainer>
@@ -236,28 +236,28 @@
 @code {
     class MonsterVM
     {
-        public MonsterStateMachine Source { get; set; }
+        public MonsterStateMachine SM { get; set; }
 
         public BattleCardAttackVM[] Attacks { get; private set; }
 
         public MonsterVM(MonsterStateMachine source)
         {
-            this.Source = source;
+            this.SM = source;
             this.Attacks = source.Attacks.Select(a => new BattleCardAttackVM(a)).ToArray();
         }
 
-        public bool cardLoaded => this.Source.Attacks.Any();
-        public string actionName => this.Source.SpecialAttackAttached ? $"必殺: {this.Source.SpecialName}" : "たたかう";
+        public bool cardLoaded => this.SM.Attacks.Any();
+        public string actionName => this.SM.SpecialAttackAttached ? $"必殺: {this.SM.SpecialName}" : "たたかう";
     }
 
     class BattleCardAttackVM
     {
-        public BattleCardAttackStateMachine Source { get; set; }
+        public BattleCardAttackStateMachine SM { get; set; }
         public bool IsSelected { get; set; }
 
         public BattleCardAttackVM(BattleCardAttackStateMachine source)
         {
-            Source = source;
+            SM = source;
             IsSelected = false;
         }
     }
@@ -337,19 +337,19 @@
 
     private async Task Transform(Monster transform)
     {
-        this.monster = monster == null ? new(new(transform)) : new(new(transform, this.monster.Source));
+        this.monster = monster == null ? new(new(transform)) : new(new(transform, this.monster.SM));
         await this.RefreshImage();
     }
 
     private async Task RefreshImage()
     {
-        var imageBytes = this.My.ImagesByName.TryGetValue(monster.Source.Def.ImageFileName, out var bytes) ? bytes : [];
+        var imageBytes = this.My.ImagesByName.TryGetValue(monster.SM.Def.ImageFileName, out var bytes) ? bytes : [];
         if (imageBytes.Length != 0)
         {
             await this.fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
             return;
         }
-        imageBytes = this.Enemy.ImagesByName.TryGetValue(monster.Source.Def.ImageFileName, out bytes) ? bytes : [];
+        imageBytes = this.Enemy.ImagesByName.TryGetValue(monster.SM.Def.ImageFileName, out bytes) ? bytes : [];
         if (imageBytes.Length != 0)
         {
             await this.fileUpload.SetImage(cardImageElementId, new MemoryStream(imageBytes));
@@ -372,11 +372,11 @@
             var selectedValue = result.Data as BattleStateSelectItem;
             if (selectedValue?.BattleState == null)
             {
-                this.monster.Source.DettacheBattleState();
+                this.monster.SM.DettacheBattleState();
             }
             else
             {
-                this.monster.Source.AttacheBattleState(selectedValue.BattleState);
+                this.monster.SM.AttacheBattleState(selectedValue.BattleState);
             }
         }
     }
@@ -396,11 +396,11 @@
             var selectedValue = result.Data as SpecialAttackSelectItem;
             if (selectedValue?.SpecialAttack == null)
             {
-                this.monster.Source.DettacheSpecial();
+                this.monster.SM.DettacheSpecial();
             }
             else
             {
-                this.monster.Source.AttacheSpecial(selectedValue.SpecialAttack);
+                this.monster.SM.AttacheSpecial(selectedValue.SpecialAttack);
             }
         }
     }
@@ -427,7 +427,7 @@
 
     private async Task AddHp()
     {
-        var v = this.monster.Source.AddHp();
+        var v = this.monster.SM.AddHp();
         if (v > 0)
         {
             await this.audioPlayer.Play(AudioSrc.Heal);
@@ -436,10 +436,10 @@
 
     private async Task SubHp()
     {
-        var v = this.monster.Source.SubHp();
+        var v = this.monster.SM.SubHp();
         if (v > 0)
         {
-            if (this.monster.Source.IsAlive)
+            if (this.monster.SM.IsAlive)
             {
                 await this.audioPlayer.Play(AudioSrc.Damage);
                 await JS.InvokeVoidAsync("doMonsterHitEffect", cardImageElementId);
@@ -453,13 +453,13 @@
 
     private async Task Buff()
     {
-        this.monster.Source.Buff();
+        this.monster.SM.Buff();
         await this.audioPlayer.Play(AudioSrc.Buff);
     }
 
     private async Task Debuff()
     {
-        this.monster.Source.Debuff();
+        this.monster.SM.Debuff();
         await this.audioPlayer.Play(AudioSrc.Buff);
     }
 
@@ -470,11 +470,11 @@
             a.IsSelected = false;
         }
 
-        var nextAttackIndex = this.monster.Source.NextAttackIndex();
+        var nextAttackIndex = this.monster.SM.NextAttackIndex();
 
         foreach (var i in Enumerable.Range(0, 3))
         {
-            foreach (var j in Enumerable.Range(0, this.monster.Source.Attacks.Length))
+            foreach (var j in Enumerable.Range(0, this.monster.SM.Attacks.Length))
             {
                 if (j == 0)
                 {
