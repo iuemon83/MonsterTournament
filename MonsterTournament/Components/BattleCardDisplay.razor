@@ -11,40 +11,46 @@
                    @onclick="Attack">攻撃</MudButton>
 
         <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" OverrideStyles="false">
-            @if (this.monster.SM.BattleStateAttached)
-            {
-                <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Warning"
-                           @onclick="this.monster.SM.DettacheBattleState">
-                    <AttackIcon AttackType="BattleCardAttackType.BattleState" />解除
-                </MudButton>
-            }
-            else
-            {
-                <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Warning"
-                           @onclick="ShowStateDialog">
-                    <AttackIcon AttackType="BattleCardAttackType.BattleState" />
-                </MudButton>
-            }
+            <MudTooltip Text="状態">
+                @if (this.monster.SM.BattleStateAttached)
+                {
+                    <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Warning"
+                               @onclick="this.monster.SM.DettacheBattleState">
+                        <AttackIcon AttackType="BattleCardAttackType.BattleState" />解除
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Warning"
+                               @onclick="ShowStateDialog">
+                        <AttackIcon AttackType="BattleCardAttackType.BattleState" />
+                    </MudButton>
+                }
+            </MudTooltip>
 
-            <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
-                       @onclick="ShowTransformDialog">
-                <AttackIcon AttackType="BattleCardAttackType.Transform" />
-            </MudButton>
+            <MudTooltip Text="変身">
+                <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
+                           @onclick="ShowTransformDialog">
+                    <AttackIcon AttackType="BattleCardAttackType.Transform" />
+                </MudButton>
+            </MudTooltip>
 
-            @if (this.monster.SM.SpecialAttackAttached)
-            {
-                <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
-                           @onclick="this.monster.SM.DettacheSpecial">
-                    <AttackIcon AttackType="BattleCardAttackType.Special" />解除
-                </MudButton>
-            }
-            else
-            {
-                <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
-                           @onclick="ShowSpecialDialog">
-                    <AttackIcon AttackType="BattleCardAttackType.Special" />
-                </MudButton>
-            }
+            <MudTooltip Text="必殺技">
+                @if (this.monster.SM.SpecialAttackAttached)
+                {
+                    <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
+                               @onclick="this.monster.SM.DettacheSpecial">
+                        <AttackIcon AttackType="BattleCardAttackType.Special" />解除
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton Disabled=!this.monster.cardLoaded Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary"
+                               @onclick="ShowSpecialDialog">
+                        <AttackIcon AttackType="BattleCardAttackType.Special" />
+                    </MudButton>
+                }
+            </MudTooltip>
         </MudButtonGroup>
 
         <div class="d-flex justify-center align-center gap-1">
