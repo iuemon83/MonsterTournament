@@ -12,9 +12,12 @@
         if (!image) {
             console.log("image element not found");
         } else {
-            image.onload = () => {
+            image.addEventListener("load", () => {
                 URL.revokeObjectURL(url);
-            }
+            }, {
+                'once': true
+            });
+
             image.src = url;
         }
     }
