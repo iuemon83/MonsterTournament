@@ -1,4 +1,4 @@
 # MonsterTournament
-モンスタートーナメント
+オリジナルモンスタートーナメント
 
 https://iuemon83.github.io/MonsterTournament/
